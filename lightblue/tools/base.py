@@ -1,0 +1,2 @@
+class LightBlueTool:
+    pass
