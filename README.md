@@ -7,7 +7,9 @@
 [![License](https://img.shields.io/github/license/ai-zerolab/lightblue)](https://img.shields.io/github/license/ai-zerolab/lightblue)
 
 > Inspired by Deep Blue – Harnessing computational power to transcend human design.
+>
 > [The Bitter Lesson](http://www.incompleteideas.net/IncIdeas/BitterLesson.html)
+>
 > [The Bitter Lesson: Rethinking How We Build AI Systems](https://ankitmaloo.com/bitter-lesson/)
 
 Light Blue is an agent designed for generating HTML.
