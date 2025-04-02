@@ -48,6 +48,6 @@ uvx lightblue-ai submit prompt.md # Or just uvx lightblue-ai submit, prompt.md i
 
 ## Configuration
 
-`system_prompt.md` to Override [system prompt](./lightblue_ai/prompts/templates/system_prompt.md)
-`mcp.json` to configure [MCP](./mcp.example.json)
-`.env` for [setting environment variables](./.env.example)
+- `system_prompt.md` to Override [system prompt](./lightblue_ai/prompts/templates/system_prompt.md)
+- `mcp.json` to configure [MCP](./mcp.example.json)
+- `.env` for [setting environment variables](./.env.example)
