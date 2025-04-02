@@ -37,7 +37,7 @@ if __name__ == "__main__":
         result = await agent.run("Who you are")
         print(result.data)
 
-        print(f"All messages: {result.messages}")
-        print(f"Usage: {result.usage}")
+        print(f"All messages: {result.all_messages()}")
+        print(f"Usage: {result.usage()}")
 
     asyncio.run(main())
