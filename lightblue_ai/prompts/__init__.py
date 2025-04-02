@@ -31,7 +31,7 @@ def get_system_prompt(**kwargs):
 
 def get_context():
     return render_context(
-        today=datetime.now().strftime("%Y-%m-%d"),
+        date=datetime.now().strftime("%Y-%m-%d"),
         cwd=Path.cwd().resolve().absolute().as_posix(),
         platform=sys.platform,
     )
