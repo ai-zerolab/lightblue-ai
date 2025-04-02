@@ -6,7 +6,7 @@ from pydantic_ai.tools import Tool
 
 class Scope(str, enum.Enum):
     read = "read"
-    """Provide context for llm, may write to disk to store context"""
+    """Provide context for llm, may write to disk to store context. AIGC tools can generate context."""
 
     write = "write"
     """Write, may overwrite existing files"""
