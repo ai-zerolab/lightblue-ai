@@ -1,3 +1,5 @@
+import asyncio
+import functools
 from pathlib import Path
 
 import typer
@@ -9,16 +11,21 @@ from lightblue.mcps import get_mcp_servers
 app = typer.Typer()
 
 
+def make_sync(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        return asyncio.run(func(*args, **kwargs))
+
+    return wrapper
+
+
 @app.command()
+@make_sync
 async def submit(
     prompt: str,
     all_messages_json: Path = typer.Option(
         default="all_messages.json",
         help="The path to store the result",
-    ),
-    usage_json: Path = typer.Option(
-        default="usage.json",
-        help="The path to store the usage",
     ),
 ):
     agent = LightBlueAgent()
@@ -26,11 +33,11 @@ async def submit(
     result = await agent.run(prompt)
     print(result.data)
 
-    with all_messages_json.open("w") as f:
+    with all_messages_json.open("wb") as f:
         f.write(result.all_messages_json())
 
-    with usage_json.open("w") as f:
-        f.write(result.usage())
+    print(f"Usage: {result.usage()}")
+    print(f"Saved all messages to {all_messages_json}")
 
 
 @app.command()
