@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "yourware": {
+      "args": [
+        "yourware-mcp@latest",
+        "stdio"
+      ],
+      "command": "/opt/homebrew/bin/uvx",
+      "env": {}
+    }
+  }
+}

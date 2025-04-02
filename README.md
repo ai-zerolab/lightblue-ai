@@ -31,3 +31,23 @@ brew install poppler
 ### Linux
 
 Most distros ship with pdftoppm and pdftocairo. If they are not installed, refer to your package manager to install poppler-utils
+
+## Usage
+
+Directly prompt:
+
+```bash
+uvx lightblue-ai submit <prompt>
+```
+
+Use prompt file:
+
+```bash
+uvx lightblue-ai submit prompt.md # Or just uvx lightblue-ai submit, prompt.md is the default prompt file
+```
+
+## Configuration
+
+`system_prompt.md` to Override [system prompt](./lightblue_ai/prompts/templates/system_prompt.md)
+`mcp.json` to configure [MCP](./mcp.example.json)
+`.env` for [setting environment variables](./.env.example)
