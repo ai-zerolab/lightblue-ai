@@ -1,6 +1,9 @@
 from pathlib import Path
 
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+load_dotenv()
 
 
 class Settings(BaseSettings):
@@ -14,4 +17,4 @@ class Settings(BaseSettings):
 
     mcp_config_path: str = (Path.cwd() / "./mcp.json").expanduser().resolve().absolute().as_posix()
 
-    model_config = SettingsConfigDict(case_sensitive=False, frozen=True, env_file=".env")
+    model_config = SettingsConfigDict(case_sensitive=False, frozen=True, env_file=".env", extra="allow")
