@@ -5,8 +5,8 @@ from pdf2image import convert_from_path
 from pydantic import Field
 from pydantic_ai import Tool
 
-from lightblue.tools.base import LightBlueTool, Scope
-from lightblue.tools.extensions import hookimpl
+from lightblue_ai.tools.base import LightBlueTool, Scope
+from lightblue_ai.tools.extensions import hookimpl
 
 
 class Pdf2ImageTool(LightBlueTool):

@@ -95,5 +95,5 @@ jobs:
             file: ./Dockerfile
             push: true
             tags: |
-              ghcr.io/ai-zerolab/lightblue:${{ steps.vars.outputs.tag }}
-              ghcr.io/ai-zerolab/lightblue:latest
+              ghcr.io/ai-zerolab/lightblue-ai:${{ steps.vars.outputs.tag }}
+              ghcr.io/ai-zerolab/lightblue-ai:latest

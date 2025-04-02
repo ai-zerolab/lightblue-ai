@@ -3,11 +3,11 @@ from collections.abc import Sequence
 from pydantic_ai.agent import Agent, AgentRunResult
 from pydantic_ai.messages import UserContent
 
-from lightblue.mcps import get_mcp_servers
-from lightblue.models import infer_model
-from lightblue.prompts import get_context, get_system_prompt
-from lightblue.settings import Settings
-from lightblue.tools.manager import LightBlueToolManager
+from lightblue_ai.mcps import get_mcp_servers
+from lightblue_ai.models import infer_model
+from lightblue_ai.prompts import get_context, get_system_prompt
+from lightblue_ai.settings import Settings
+from lightblue_ai.tools.manager import LightBlueToolManager
 
 
 class LightBlueAgent:

@@ -4,9 +4,9 @@ from pathlib import Path
 
 import typer
 
-from lightblue.agent import LightBlueAgent
-from lightblue.log import logger
-from lightblue.mcps import get_mcp_servers
+from lightblue_ai.agent import LightBlueAgent
+from lightblue_ai.log import logger
+from lightblue_ai.mcps import get_mcp_servers
 
 app = typer.Typer()
 

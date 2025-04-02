@@ -21,4 +21,4 @@ COPY . /app
 # Sync the project
 RUN uv sync --frozen
 
-CMD [ "lightblue", "submit" ]
+CMD [ "lightblue-ai", "submit" ]

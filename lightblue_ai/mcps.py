@@ -7,7 +7,7 @@ from mcp import StdioServerParameters
 from pydantic import BaseModel, Field
 from pydantic_ai.mcp import MCPServer, MCPServerHTTP, MCPServerStdio
 
-from lightblue.settings import Settings
+from lightblue_ai.settings import Settings
 
 
 class SSEServerParameters(BaseModel):

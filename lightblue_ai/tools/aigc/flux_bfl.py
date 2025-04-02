@@ -9,10 +9,10 @@ from PIL import Image
 from pydantic import Field
 from pydantic_ai import Tool
 
-from lightblue.log import logger
-from lightblue.settings import Settings
-from lightblue.tools.base import LightBlueTool, Scope
-from lightblue.tools.extensions import hookimpl
+from lightblue_ai.log import logger
+from lightblue_ai.settings import Settings
+from lightblue_ai.tools.base import LightBlueTool, Scope
+from lightblue_ai.tools.extensions import hookimpl
 
 API_URL = "https://api.bfl.ml"
 API_ENDPOINTS = {

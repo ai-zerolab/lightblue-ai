@@ -8,8 +8,8 @@ from typing import Annotated
 from pydantic import Field
 from pydantic_ai.tools import Tool
 
-from lightblue.tools.base import LightBlueTool, Scope
-from lightblue.tools.extensions import hookimpl
+from lightblue_ai.tools.base import LightBlueTool, Scope
+from lightblue_ai.tools.extensions import hookimpl
 
 
 class BashTool(LightBlueTool):

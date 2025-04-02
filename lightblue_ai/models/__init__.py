@@ -1,6 +1,6 @@
 from pydantic_ai.models import infer_model as legacy_infer_model
 
-from lightblue.models.bedrock import BedrockConverseModel as PatchedBedrockConverseModel
+from lightblue_ai.models.bedrock import BedrockConverseModel as PatchedBedrockConverseModel
 
 
 def infer_model(model: str):

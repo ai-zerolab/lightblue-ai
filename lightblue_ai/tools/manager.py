@@ -5,11 +5,11 @@ from pathlib import Path
 import pluggy
 from pydantic_ai.tools import Tool
 
-import lightblue.tools as tools_package
-from lightblue.log import logger
-from lightblue.tools import extensions
-from lightblue.tools.base import LightBlueTool
-from lightblue.tools.extensions import project_name as PROJECT_NAME
+import lightblue_ai.tools as tools_package
+from lightblue_ai.log import logger
+from lightblue_ai.tools import extensions
+from lightblue_ai.tools.base import LightBlueTool
+from lightblue_ai.tools.extensions import project_name as PROJECT_NAME
 
 
 class Singleton(type):
@@ -58,7 +58,7 @@ class LightBlueToolManager(metaclass=Singleton):
         for item in tools_path.iterdir():
             if item.is_dir() and not item.name.startswith("__"):
                 # Import the module and load it
-                module_name = f"lightblue.tools.{item.name}"
+                module_name = f"lightblue_ai.tools.{item.name}"
                 try:
                     module = importlib.import_module(module_name)
                     logger.debug(f"Auto-loading module: {module_name}")

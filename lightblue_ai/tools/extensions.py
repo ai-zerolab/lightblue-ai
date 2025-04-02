@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pluggy
 
-project_name = "lightblue-tools"
+project_name = "lightblue-ai-tools"
 """
 The entry-point name of this extension.
 
@@ -34,7 +34,7 @@ def register(manager):
         class SomeTool(LightBlueTool):
             ...
 
-        from lightblue.tools.extensions import hookimpl
+        from lightblue_ai.tools.extensions import hookimpl
 
         @hookimpl
         def register(manager):
@@ -44,6 +44,6 @@ def register(manager):
 
     .. code-block:: toml
 
-        [project.entry-points."lightblue-tools"]
+        [project.entry-points."lightblue-ai-tools"]
         {whatever-name} = "{package}.{path}.{to}.{file-with-hookimpl-function}"
     """

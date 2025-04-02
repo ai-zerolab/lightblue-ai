@@ -5,9 +5,9 @@ from pydantic import Field
 from pydantic_ai import BinaryContent
 from pydantic_ai.tools import Tool
 
-from lightblue.settings import Settings
-from lightblue.tools.base import LightBlueTool, Scope
-from lightblue.tools.extensions import hookimpl
+from lightblue_ai.settings import Settings
+from lightblue_ai.tools.base import LightBlueTool, Scope
+from lightblue_ai.tools.extensions import hookimpl
 
 URLBOX_URL = "https://api.urlbox.io/v1/render/sync"
 
