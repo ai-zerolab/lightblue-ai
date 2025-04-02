@@ -21,6 +21,7 @@ dependencies = [
     "httpx>=0.28.1",
     "jinja2>=3.1.6",
     "loguru>=0.7.3",
+    "mcp>=1.6.0",
     "pillow>=11.2.0",
     "pluggy>=1.5.0",
     "pydantic>=2.11.1",

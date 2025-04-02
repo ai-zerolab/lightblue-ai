@@ -5,6 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     default_model: str
+    sub_agent_model: str | None = None
 
     tavily_api_key: str | None = None
     bfl_api_key: str | None = None

@@ -1,8 +1,9 @@
-from typing import Annotated
+from collections.abc import Sequence
 
-from pydantic import Field
-from pydantic_ai.agent import Agent
+from pydantic_ai.agent import Agent, AgentRunResult
+from pydantic_ai.messages import UserContent
 
+from lightblue.mcps import get_mcp_servers
 from lightblue.models import infer_model
 from lightblue.prompts import get_context, get_system_prompt
 from lightblue.settings import Settings
@@ -20,17 +21,23 @@ class LightBlueAgent:
                 context=get_context(),
             ),
             tools=self.tool_manager.get_all_tools(),
+            mcp_servers=get_mcp_servers(),
         )
 
-        self.sub_agent = Agent(
-            infer_model(self.settings.default_model),
-            system_prompt=get_system_prompt(
-                context=get_context(),
-            ),
-            tools=self.tool_manager.get_sub_agent_tools(),
-        )
+    async def run(self, user_prompt: str | Sequence[UserContent]) -> AgentRunResult[str]:
+        async with self.agent.run_mcp_servers():
+            return await self.agent.run(user_prompt)
 
-        @self.agent.tool_plain
-        async def dispatch_agent(prompt: Annotated[str, Field(description="")]) -> str:
-            """ """
-            return await self.sub_agent.run(prompt)
+
+if __name__ == "__main__":
+    import asyncio
+
+    async def main():
+        agent = LightBlueAgent()
+        result = await agent.run("Who you are")
+        print(result.data)
+
+        print(f"All messages: {result.messages}")
+        print(f"Usage: {result.usage}")
+
+    asyncio.run(main())

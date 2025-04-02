@@ -20,8 +20,8 @@ render_context = partial(render_template, CONTEXT_TEMPLATE)
 render_system_prompt = partial(render_template, SYSTEM_PROMPT_TEMPLATE)
 
 
-def get_system_prompt():
-    return render_system_prompt()
+def get_system_prompt(**kwargs):
+    return render_system_prompt(**kwargs)
 
 
 def get_context():
