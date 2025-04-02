@@ -6,7 +6,7 @@ from pydantic_ai.messages import UserContent
 
 from lightblue_ai.mcps import get_mcp_servers
 from lightblue_ai.models import infer_model
-from lightblue_ai.prompts import get_context, get_system_prompt
+from lightblue_ai.prompts import get_system_prompt
 from lightblue_ai.settings import Settings
 from lightblue_ai.tools.manager import LightBlueToolManager
 
