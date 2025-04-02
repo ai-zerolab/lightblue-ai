@@ -22,12 +22,16 @@ def make_sync(func):
 @app.command()
 @make_sync
 async def submit(
-    prompt: str,
+    prompt: str = typer.Argument("prompt.md", help="The prompt to send to the agent, text or file"),
     all_messages_json: Path = typer.Option(
         default="all_messages.json",
         help="The path to store the result",
     ),
 ):
+    if Path(prompt).exists():
+        with open(prompt) as f:
+            prompt = f.read()
+
     agent = LightBlueAgent()
 
     result = await agent.run(prompt)
