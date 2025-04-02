@@ -1,5 +1,8 @@
 # Install uv
 FROM python:3.12-slim
+
+RUN apt-get update && apt-get install -y poppler-utils && rm -rf /var/lib/apt/lists/*
+
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
 # Change the working directory to the `app` directory
@@ -18,4 +21,4 @@ COPY . /app
 # Sync the project
 RUN uv sync --frozen
 
-CMD [ "python", "lightblue/foo.py" ]
+CMD [ "lightblue", "submit" ]

@@ -15,3 +15,19 @@
 Light Blue is an agent designed for generating HTML.
 
 - **Github repository**: <https://github.com/ai-zerolab/lightblue/>
+
+## Pre-requisites
+
+### Mac
+
+Mac users will have to install poppler for pdf to image conversion
+
+Installing using Brew:
+
+```bash
+brew install poppler
+```
+
+### Linux
+
+Most distros ship with pdftoppm and pdftocairo. If they are not installed, refer to your package manager to install poppler-utils

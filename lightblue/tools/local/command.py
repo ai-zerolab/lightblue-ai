@@ -58,7 +58,7 @@ class BashTool(LightBlueTool):
 
     async def _bash(
         self,
-        command: Annotated[list[str] | str, Field(description="The command to execute as a list of strings")],
+        command: Annotated[list[str], Field(description="The command to execute as a list of strings")],
         timeout_seconds: Annotated[int, Field(default=30, description="Maximum execution time in seconds")] = 30,
         working_dir: Annotated[
             str | None,
@@ -73,7 +73,12 @@ class BashTool(LightBlueTool):
                 "return_code": 1,
             }
         if isinstance(command, str):
-            command = command.split(" ")
+            return {
+                "error": "Command must be a list of strings",
+                "stdout": "",
+                "stderr": "",
+                "return_code": 1,
+            }
 
         try:
             # Expand user home directory in working_dir if provided

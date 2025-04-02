@@ -340,7 +340,8 @@ class ViewTool(LightBlueTool):
             "You can optionally specify a line offset and limit (especially handy for long files), "
             "but it's recommended to read the whole file by not providing these parameters. "
             "Any lines longer than 2000 characters will be truncated. "
-            "For image files, the tool will display the image for you."
+            "For image files, the tool will display the image for you. "
+            "For very large PDF files, you need to use the PDF2Images tool to convert them into multiple images and read the images to understand the PDF."
         )
 
     async def _view(  # noqa: C901
