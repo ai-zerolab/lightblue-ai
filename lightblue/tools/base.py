@@ -6,13 +6,19 @@ from pydantic_ai.tools import Tool
 
 class Scope(str, enum.Enum):
     read = "read"
-    """Provide context for llm, may write to disk to store context. AIGC tools can generate context."""
+    """Provide context for llm, may write to disk to store context."""
 
     write = "write"
     """Write, may overwrite existing files"""
 
     exec = "exec"
     """Exec some command, most dangerous"""
+
+    generation = "generation"
+    """AI generation context"""
+
+    web = "web"
+    """Web context"""
 
 
 class LightBlueTool(ABC):
@@ -31,5 +37,8 @@ class LightBlueTool(ABC):
     def is_exec_tool(self) -> bool:
         return Scope.exec in self.scopes
 
-    def is_mcp_tool(self) -> bool:
-        return Scope.mcp in self.scopes
+    def is_generation_tool(self) -> bool:
+        return Scope.generation in self.scopes
+
+    def is_web_tool(self) -> bool:
+        return Scope.web in self.scopes

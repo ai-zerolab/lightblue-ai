@@ -85,6 +85,10 @@ class LightBlueToolManager(metaclass=Singleton):
             return
         self._registed_instance.append(instance)
 
+    def get_sub_agent_tools(self) -> list[Tool]:
+        """read&web tools"""
+        return [i.init_tool() for i in self._registed_instance if i.is_read_tool() or i.is_web_tool()]
+
     def get_read_tools(self) -> list[Tool]:
         return [i.init_tool() for i in self._registed_instance if i.is_read_tool()]
 
@@ -93,6 +97,9 @@ class LightBlueToolManager(metaclass=Singleton):
 
     def get_exec_tools(self) -> list[Tool]:
         return [i.init_tool() for i in self._registed_instance if i.is_exec_tool()]
+
+    def get_generation_tools(self) -> list[Tool]:
+        return [i.init_tool() for i in self._registed_instance if i.is_generation_tool()]
 
     def get_all_tools(self) -> list[Tool]:
         return [i.init_tool() for i in self._registed_instance]
