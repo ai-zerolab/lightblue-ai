@@ -28,9 +28,7 @@ class LightBlueAgent[T]:
             result_type=result_type,
             result_tool_name=result_tool_name,
             result_tool_description=result_tool_description,
-            system_prompt=get_system_prompt(
-                context=get_context(),
-            ),
+            system_prompt=get_system_prompt(),
             tools=self.tool_manager.get_all_tools(),
             mcp_servers=get_mcp_servers(),
         )
