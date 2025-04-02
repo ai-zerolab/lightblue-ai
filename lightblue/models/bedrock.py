@@ -285,7 +285,7 @@ class BedrockConverseModel(Model):
                 else {}
             ),
         }
-
+        print(bedrock_messages)
         if stream:
             model_response = await anyio.to_thread.run_sync(functools.partial(self.client.converse_stream, **params))
             model_response = model_response["stream"]

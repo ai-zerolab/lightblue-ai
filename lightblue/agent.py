@@ -27,17 +27,3 @@ class LightBlueAgent:
     async def run(self, user_prompt: str | Sequence[UserContent]) -> AgentRunResult[str]:
         async with self.agent.run_mcp_servers():
             return await self.agent.run(user_prompt)
-
-
-if __name__ == "__main__":
-    import asyncio
-
-    async def main():
-        agent = LightBlueAgent()
-        result = await agent.run("Who you are")
-        print(result.data)
-
-        print(f"All messages: {result.all_messages()}")
-        print(f"Usage: {result.usage()}")
-
-    asyncio.run(main())

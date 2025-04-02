@@ -14,6 +14,7 @@ class ThinkingTool(LightBlueTool):
         self.scopes = [Scope.read]
 
     async def _think(
+        self,
         thought: Annotated[str, Field(description="A thought to think about.")],
     ) -> dict[str, str]:
         return {
