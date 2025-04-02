@@ -2,9 +2,9 @@ from collections.abc import Sequence
 from typing import TypeVar
 
 from pydantic_ai.agent import Agent, AgentRunResult
+from pydantic_ai.mcp import MCPServer
 from pydantic_ai.messages import UserContent
 from pydantic_ai.tool import Tool
-from pydantic_ai.mcp import MCPServer
 
 from lightblue_ai.mcps import get_mcp_servers
 from lightblue_ai.models import infer_model
