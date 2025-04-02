@@ -16,11 +16,7 @@ class UrlboxAPI:
     def __init__(self, api_key: str):
         self.url = URLBOX_URL
         self.api_key = api_key
-        self.client = httpx.AsyncClient(
-            headers={
-                "Authorization": f"Bearer {self.api_key}",
-            }
-        )
+        self.client = httpx.AsyncClient()
 
     async def _get_screenshot(self, url: str) -> bytes:
         """
@@ -46,7 +42,14 @@ class UrlboxAPI:
         }
 
         # Get the render URL
-        response = await self.client.post(self.url, json=request_body, timeout=60.0)
+        response = await self.client.post(
+            self.url,
+            json=request_body,
+            timeout=60.0,
+            headers={
+                "Authorization": f"Bearer {self.api_key}",
+            },
+        )
         response.raise_for_status()
         response_data = response.json()
 
@@ -73,7 +76,7 @@ class ScreenshotTool(LightBlueTool):
     ) -> BinaryContent:
         return BinaryContent(
             data=await self.urlbox._get_screenshot(url),
-            mime_type="image/png",
+            media_type="image/png",
         )
 
     def init_tool(self) -> Tool:

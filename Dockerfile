@@ -1,7 +1,7 @@
 # Install uv
 FROM python:3.12-slim
 
-RUN apt-get update && apt-get install -y poppler-utils && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y poppler-utils ffmpeg && rm -rf /var/lib/apt/lists/*
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
