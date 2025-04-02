@@ -29,6 +29,9 @@ def get_mcp_servers() -> list[MCPServer]:
     settings = Settings()
 
     config_path = Path(settings.mcp_config_path)
+    if not config_path.exists():
+        return []
+
     mcp_config = MCPConfig.model_validate_json(config_path.read_text())
 
     mcp_servers: list[MCPServer] = []
