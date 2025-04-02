@@ -716,7 +716,7 @@ requires-dist = [
     { name = "loguru", specifier = ">=0.7.3" },
     { name = "mcp", specifier = ">=1.6.0" },
     { name = "pdf2image", specifier = ">=1.17.0" },
-    { name = "pillow", specifier = ">=11.2.0" },
+    { name = "pillow", specifier = ">=11.1.0" },
     { name = "pluggy", specifier = ">=1.5.0" },
     { name = "pydantic", specifier = ">=2.11.1" },
     { name = "pydantic-ai", specifier = ">=0.0.48" },
