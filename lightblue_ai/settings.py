@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     tavily_api_key: str | None = None
     bfl_api_key: str | None = None
     urlbox_api_key: str | None = None
+    pixabay_api_key: str | None = None
 
     mcp_config_path: str = (Path.cwd() / "./mcp.json").expanduser().resolve().absolute().as_posix()
 
