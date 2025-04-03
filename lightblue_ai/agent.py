@@ -54,4 +54,4 @@ class LightBlueAgent[T]:
         async with self.agent.run_mcp_servers(), self.agent.iter(user_prompt) as run:
             async for node in run:
                 yield node
-        logger.info(f"Usage: {run.usage()}")
+        logger.info(f"{run.usage()}")
