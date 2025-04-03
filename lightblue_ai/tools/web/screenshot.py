@@ -89,4 +89,5 @@ class ScreenshotTool(LightBlueTool):
 
 @hookimpl
 def register(manager):
-    manager.register(ScreenshotTool())
+    if Settings().urlbox_api_key:
+        manager.register(ScreenshotTool())
