@@ -104,7 +104,3 @@ class LightBlueToolManager(metaclass=Singleton):
 
     def get_all_tools(self) -> list[Tool]:
         return [i.init_tool() for i in self._registed_instance]
-
-
-if __name__ == "__main__":
-    LightBlueToolManager()
