@@ -16,11 +16,8 @@ def test_manager():
         "Replace",
         "View",
         "dispatch_agent",
-        "generate_image_with_flux",
         "save_web",
         "screenshot",
-        "search_image",
-        "search_with_tavily",
         "thinking",
     ])
 
@@ -32,8 +29,6 @@ def test_manager():
         "View",
         "save_web",
         "screenshot",
-        "search_image",
-        "search_with_tavily",
         "thinking",
     ])
 
@@ -50,4 +45,4 @@ def test_manager():
 
     assert sorted([i.name for i in manager.get_exec_tools()]) == snapshot(["BASH", "dispatch_agent"])
 
-    assert sorted([i.name for i in manager.get_generation_tools()]) == snapshot(["generate_image_with_flux"])
+    assert sorted([i.name for i in manager.get_generation_tools()]) == snapshot([])
