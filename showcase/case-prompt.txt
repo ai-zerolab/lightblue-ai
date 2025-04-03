@@ -1,4 +1,6 @@
-Search for the latest entertainment news, make an html page to display it, and ask for it to be cool.
+Search for the latest entertainment news, make an html page to display it, and it should be cool!
+
+Be careful that the accompanying images must accessible, you can search or generate them.
 
 Pay close attention to the following elements:
 1. Layout structure (header, body, footer, columns, etc.)
