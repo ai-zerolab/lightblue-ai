@@ -14,7 +14,7 @@ def test_manager():
         "Replace",
         "View",
         "dispatch_agent",
-        "save_web",
+        "save_http_file",
         "thinking",
     }
     sub_agent_tools = {
@@ -23,7 +23,7 @@ def test_manager():
         "LS",
         "PDF2Image",
         "View",
-        "save_web",
+        "save_http_file",
         "thinking",
     }
     read_tools = {
