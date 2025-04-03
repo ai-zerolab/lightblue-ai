@@ -13,7 +13,7 @@ SYSTEM_PROMPT_TEMPLATE = "system_prompt.md"
 CONTEXT_TEMPLATE = "context.md"
 
 
-def render_template(template_file_name: str, **kwargs) -> str:
+def _render_template(template_file_name: str, **kwargs) -> str:
     try:
         template = pwd_env.get_template(template_file_name)
     except Exception:
@@ -21,8 +21,8 @@ def render_template(template_file_name: str, **kwargs) -> str:
     return template.render(**kwargs)
 
 
-render_context = partial(render_template, CONTEXT_TEMPLATE)
-render_system_prompt = partial(render_template, SYSTEM_PROMPT_TEMPLATE)
+render_context = partial(_render_template, CONTEXT_TEMPLATE)
+render_system_prompt = partial(_render_template, SYSTEM_PROMPT_TEMPLATE)
 
 
 def get_system_prompt(**kwargs) -> str:
