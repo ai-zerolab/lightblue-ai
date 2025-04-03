@@ -40,9 +40,9 @@ def test_manager():
     exec_tools = {"BASH", "dispatch_agent"}
     generation_tools = set()
 
-    assert all_tools.issubset(manager.get_all_tools())
-    assert sub_agent_tools.issubset(manager.get_sub_agent_tools())
-    assert read_tools.issubset(manager.get_read_tools())
-    assert write_tools.issubset(manager.get_write_tools())
-    assert exec_tools.issubset(manager.get_exec_tools())
-    assert generation_tools.issubset(manager.get_generation_tools())
+    assert all_tools.issubset({i.name for i in manager.get_all_tools()})
+    assert sub_agent_tools.issubset({i.name for i in manager.get_sub_agent_tools()})
+    assert read_tools.issubset({i.name for i in manager.get_read_tools()})
+    assert write_tools.issubset({i.name for i in manager.get_write_tools()})
+    assert exec_tools.issubset({i.name for i in manager.get_exec_tools()})
+    assert generation_tools.issubset({i.name for i in manager.get_generation_tools()})
