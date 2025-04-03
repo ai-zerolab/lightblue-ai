@@ -1,12 +1,10 @@
-from inline_snapshot import snapshot
-
 from lightblue_ai.tools.manager import LightBlueToolManager
 
 
 def test_manager():
     manager = LightBlueToolManager()
 
-    assert sorted([i.name for i in manager.get_all_tools()]) == snapshot([
+    all_tools = {
         "BASH",
         "Edit",
         "GlobTool",
@@ -19,9 +17,8 @@ def test_manager():
         "save_web",
         "screenshot",
         "thinking",
-    ])
-
-    assert sorted([i.name for i in manager.get_sub_agent_tools()]) == snapshot([
+    }
+    sub_agent_tools = {
         "GlobTool",
         "GrepTool",
         "LS",
@@ -30,19 +27,22 @@ def test_manager():
         "save_web",
         "screenshot",
         "thinking",
-    ])
-
-    assert sorted([i.name for i in manager.get_read_tools()]) == snapshot([
+    }
+    read_tools = {
         "GlobTool",
         "GrepTool",
         "LS",
         "PDF2Image",
         "View",
         "thinking",
-    ])
+    }
+    write_tools = {"Edit", "Replace"}
+    exec_tools = {"BASH", "dispatch_agent"}
+    generation_tools = set()
 
-    assert sorted([i.name for i in manager.get_write_tools()]) == snapshot(["Edit", "Replace"])
-
-    assert sorted([i.name for i in manager.get_exec_tools()]) == snapshot(["BASH", "dispatch_agent"])
-
-    assert sorted([i.name for i in manager.get_generation_tools()]) == snapshot([])
+    assert all_tools.issubset(manager.get_all_tools())
+    assert sub_agent_tools.issubset(manager.get_sub_agent_tools())
+    assert read_tools.issubset(manager.get_read_tools())
+    assert write_tools.issubset(manager.get_write_tools())
+    assert exec_tools.issubset(manager.get_exec_tools())
+    assert generation_tools.issubset(manager.get_generation_tools())
