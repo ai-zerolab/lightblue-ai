@@ -15,7 +15,6 @@ def test_manager():
         "View",
         "dispatch_agent",
         "save_web",
-        "screenshot",
         "thinking",
     }
     sub_agent_tools = {
@@ -25,7 +24,6 @@ def test_manager():
         "PDF2Image",
         "View",
         "save_web",
-        "screenshot",
         "thinking",
     }
     read_tools = {
