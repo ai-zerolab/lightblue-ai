@@ -75,7 +75,7 @@ class SaveWebTool(LightBlueTool):
     def init_tool(self) -> Tool:
         return Tool(
             function=self._save_web,
-            name="save_web",
+            name="save_http_file",
             description=self.description,
         )
 
