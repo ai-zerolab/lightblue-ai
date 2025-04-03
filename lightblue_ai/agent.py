@@ -1,12 +1,13 @@
-from collections.abc import Sequence
+from collections.abc import AsyncIterator, Sequence
 from typing import TypeVar
 
-from pydantic_ai.agent import Agent, AgentRunResult
+from pydantic_ai.agent import Agent, AgentRun, AgentRunResult
 from pydantic_ai.mcp import MCPServer
 from pydantic_ai.messages import UserContent
 from pydantic_ai.models import Model
 from pydantic_ai.tools import Tool
 
+from lightblue_ai.log import logger
 from lightblue_ai.mcps import get_mcp_servers
 from lightblue_ai.models import infer_model
 from lightblue_ai.prompts import get_system_prompt
@@ -48,3 +49,9 @@ class LightBlueAgent[T]:
     async def run(self, user_prompt: str | Sequence[UserContent]) -> AgentRunResult[T]:
         async with self.agent.run_mcp_servers():
             return await self.agent.run(user_prompt)
+
+    async def iter(self, user_prompt: str | Sequence[UserContent]) -> AsyncIterator[AgentRun]:
+        async with self.agent.run_mcp_servers(), self.agent.iter(user_prompt) as run:
+            async for node in run:
+                yield node
+        logger.info(f"Usage: {run.usage()}")
