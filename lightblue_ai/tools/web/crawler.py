@@ -125,7 +125,7 @@ class JinaReaderTool(LightBlueTool):
     def init_tool(self) -> Tool:
         return Tool(
             function=self._read_web,
-            name="read_web",
+            name="read_web_with_jina",
             description=self.description,
         )
 
