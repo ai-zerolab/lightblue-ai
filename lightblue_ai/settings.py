@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     default_model: str | None = None
     sub_agent_model: str | None = None
 
+    jina_api_key: str | None = None
     tavily_api_key: str | None = None
     bfl_api_key: str | None = None
     urlbox_api_key: str | None = None
