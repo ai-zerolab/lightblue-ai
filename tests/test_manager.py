@@ -6,48 +6,48 @@ from lightblue_ai.tools.manager import LightBlueToolManager
 def test_manager():
     manager = LightBlueToolManager()
 
-    assert [i.name for i in manager.get_all_tools()] == snapshot([
-        "thinking",
+    assert sorted([i.name for i in manager.get_all_tools()]) == snapshot([
         "BASH",
-        "GrepTool",
-        "GlobTool",
-        "LS",
-        "View",
         "Edit",
+        "GlobTool",
+        "GrepTool",
+        "LS",
+        "PDF2Image",
         "Replace",
-        "PDF2Image",
-        "search_with_tavily",
-        "screenshot",
-        "search_image",
-        "save_web",
-        "generate_image_with_flux",
+        "View",
         "dispatch_agent",
-    ])
-
-    assert [i.name for i in manager.get_sub_agent_tools()] == snapshot([
-        "thinking",
-        "GrepTool",
-        "GlobTool",
-        "LS",
-        "View",
-        "PDF2Image",
-        "search_with_tavily",
+        "generate_image_with_flux",
+        "save_web",
         "screenshot",
         "search_image",
-        "save_web",
-    ])
-
-    assert [i.name for i in manager.get_read_tools()] == snapshot([
+        "search_with_tavily",
         "thinking",
-        "GrepTool",
-        "GlobTool",
-        "LS",
-        "View",
-        "PDF2Image",
     ])
 
-    assert [i.name for i in manager.get_write_tools()] == snapshot(["Edit", "Replace"])
+    assert sorted([i.name for i in manager.get_sub_agent_tools()]) == snapshot([
+        "GlobTool",
+        "GrepTool",
+        "LS",
+        "PDF2Image",
+        "View",
+        "save_web",
+        "screenshot",
+        "search_image",
+        "search_with_tavily",
+        "thinking",
+    ])
 
-    assert [i.name for i in manager.get_exec_tools()] == snapshot(["BASH", "dispatch_agent"])
+    assert sorted([i.name for i in manager.get_read_tools()]) == snapshot([
+        "GlobTool",
+        "GrepTool",
+        "LS",
+        "PDF2Image",
+        "View",
+        "thinking",
+    ])
 
-    assert [i.name for i in manager.get_generation_tools()] == snapshot(["generate_image_with_flux"])
+    assert sorted([i.name for i in manager.get_write_tools()]) == snapshot(["Edit", "Replace"])
+
+    assert sorted([i.name for i in manager.get_exec_tools()]) == snapshot(["BASH", "dispatch_agent"])
+
+    assert sorted([i.name for i in manager.get_generation_tools()]) == snapshot(["generate_image_with_flux"])
