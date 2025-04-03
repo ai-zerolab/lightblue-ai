@@ -7,7 +7,7 @@ load_dotenv(Path.cwd() / ".env")
 
 
 class Settings(BaseSettings):
-    default_model: str
+    default_model: str | None = None
     sub_agent_model: str | None = None
 
     tavily_api_key: str | None = None

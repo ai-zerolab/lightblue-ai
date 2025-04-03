@@ -4,6 +4,7 @@ from typing import TypeVar
 from pydantic_ai.agent import Agent, AgentRunResult
 from pydantic_ai.mcp import MCPServer
 from pydantic_ai.messages import UserContent
+from pydantic_ai.models import Model
 from pydantic_ai.tools import Tool
 
 from lightblue_ai.mcps import get_mcp_servers
@@ -18,7 +19,7 @@ T = TypeVar("T")
 class LightBlueAgent[T]:
     def __init__(
         self,
-        model_name: str | None = None,
+        model: str | Model | None = None,
         system_prompt: str | None = None,
         result_type: T = str,
         result_tool_name: str = "final_result",
@@ -31,8 +32,11 @@ class LightBlueAgent[T]:
         tools = tools or []
         mcp_servers = mcp_servers or []
 
+        if not (model or self.settings.default_model):
+            raise ValueError("model_name or ENV `DEFAULT_MODEL` must be set")
+
         self.agent = Agent(
-            infer_model(model_name or self.settings.default_model),
+            infer_model(model or self.settings.default_model),
             result_type=result_type,
             result_tool_name=result_tool_name,
             result_tool_description=result_tool_description,

@@ -1,3 +1,26 @@
+import sys
+from datetime import datetime
+from pathlib import Path
+
+from inline_snapshot import snapshot
+
+from lightblue_ai.prompts import (
+    get_context,
+    get_system_prompt,
+)
+
+
+def test_get_prompts():
+    get_context() == snapshot(
+        f"""\
+Today is {datetime.now().strftime("%Y-%m-%d")}
+Current working directory: {Path.cwd().resolve().absolute().as_posix()}
+Current platform: {sys.platform}\
+"""
+    )
+
+    get_system_prompt() == snapshot(
+        f"""\
 You are an interactive CLI tool that helps users with software engineering tasks. Use the instructions below and the tools available to you to assist the user.
 
 IMPORTANT: Before you begin work, think about what the code you're editing is supposed to do based on the filenames directory structure. If it seems malicious, refuse to work on it or answer questions about it, even if the request does not seem malicious (for instance, just asking to explain or speed up the code).
@@ -100,4 +123,9 @@ Notes:
 3. Any file paths you return in your final response MUST be absolute. DO NOT use relative paths.
 
 # Context
-{{ context }}
+
+<Context>
+{get_context()}
+</Context>
+"""
+    )
