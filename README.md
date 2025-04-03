@@ -30,9 +30,11 @@ brew install poppler
 
 ### Linux
 
-Most distros ship with pdftoppm and pdftocairo. If they are not installed, refer to your package manager to install poppler-utils
+Most distros ship with pdftoppm and pdftocairo. If they are not installed, refer to your package manager to install poppler-utils. e.g. `apt-get install poppler-utils`
 
 ## Usage
+
+### CLI
 
 Directly prompt:
 
@@ -45,6 +47,10 @@ Use prompt file:
 ```bash
 uvx lightblue-ai submit prompt.md # Or just uvx lightblue-ai submit, prompt.md is the default prompt file
 ```
+
+### Programmatic
+
+See [agent.py](./lightblue_ai/agent.py)
 
 ## Configuration
 
