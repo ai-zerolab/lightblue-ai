@@ -185,3 +185,6 @@ celsius_to_fahrenheit, Convert Celsius to Fahrenheit.
     , {'properties': {'celsius': {'title': 'Celsius', 'type': 'number'}}, 'required': ['celsius'], 'title': 'celsius_to_fahrenheitArguments', 'type': 'object'}\
 """
     )
+
+    async for node in agent.iter("hello"):
+        assert node
