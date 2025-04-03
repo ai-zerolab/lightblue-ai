@@ -50,10 +50,12 @@ uvx lightblue-ai submit prompt.md # Or just uvx lightblue-ai submit, prompt.md i
 
 ### Programmatic
 
-See [agent.py](./lightblue_ai/agent.py)
+See [agent.py](./lightblue_ai/agent.py) and [Examples](./examples/README.md)
 
 ## Configuration
 
 - `system_prompt.md` to Override [system prompt](./lightblue_ai/prompts/templates/system_prompt.md)
 - `mcp.json` to configure [MCP](./mcp.example.json)
 - `.env` for [setting environment variables](./.env.example)
+
+Once you provided the api-key of the tools, tools will automatically be loaded.

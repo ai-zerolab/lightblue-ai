@@ -34,7 +34,7 @@ class LightBlueAgent[T]:
         mcp_servers = mcp_servers or []
 
         if not (model or self.settings.default_model):
-            raise ValueError("model_name or ENV `DEFAULT_MODEL` must be set")
+            raise ValueError("model or ENV `DEFAULT_MODEL` must be set")
 
         self.agent = Agent(
             infer_model(model or self.settings.default_model),

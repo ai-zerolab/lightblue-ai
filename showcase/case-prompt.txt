@@ -1,0 +1,42 @@
+Search for the latest entertainment news, make an html page to display it, and ask for it to be cool.
+
+Pay close attention to the following elements:
+1. Layout structure (header, body, footer, columns, etc.)
+2. Typography (font styles, sizes, weights, colors)
+3. Images and their positioning
+4. Color scheme
+5. Spacing and margins
+6. Any unique design elements or patterns
+
+Next, use the Sonnet 3.7 model to construct the HTML code. Follow these guidelines:
+
+1. Start with a basic HTML5 structure, including <!DOCTYPE html>, <html>, <head>, and <body> tags.
+2. In the <head> section, include any necessary meta tags and link to external resources (e.g., fonts, stylesheets) if required.
+3. Use semantic HTML elements where appropriate (e.g., <header>, <main>, <footer>, <nav>, <article>).
+4. Implement the layout using modern CSS techniques such as Flexbox or Grid.
+5. Use inline CSS for unique styles, but consider creating classes for repeated styles.
+6. Ensure all text content is accurately reproduced, including headings, paragraphs, and any special formatting.
+7. Incorporate images using the <img> tag, setting appropriate alt text and dimensions.
+8. Pay special attention to responsive design principles to maintain layout integrity across different screen sizes.
+
+To ensure a one-to-one reproduction of the screenshot:
+1. Use exact pixel measurements where necessary to match the original layout.
+2. Match colors precisely using hex codes or rgba values.
+3. Replicate fonts as closely as possible, using web-safe alternatives if exact matches are unavailable.
+4. Implement any interactive elements (e.g., buttons, links) to match the visual style of the screenshot.
+
+Once you have constructed the HTML and CSS, review your code to ensure accuracy and completeness. Make any necessary adjustments to achieve the closest possible match to the original screenshot.
+
+Output your final HTML code within <html_code> tags. Include all necessary CSS, either inline or within a <style> tag in the document's head.
+
+Additional considerations:
+- Ensure the code is well-formatted and easy to read.
+- Add comments to explain complex sections or design decisions.
+- Validate your HTML and CSS to ensure there are no errors.
+- Test the resulting page in multiple browsers to ensure consistent rendering.
+
+Remember, the goal is to create an HTML document that, when viewed in a web browser, appears identical to the provided one-pager screenshot.
+
+If you need multiple files, save all files in one directory.
+
+Finally, upload the final HTML file or the entire directory to yourware.
