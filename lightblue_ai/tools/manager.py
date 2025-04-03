@@ -39,6 +39,8 @@ class LightBlueToolManager(metaclass=Singleton):
 
         self._init_tools()
 
+        logger.info(f"Found {len(self._registed_instance)} tools.")
+
     def _init_tools(self):
         for f in self.pm.hook.register(manager=self):
             try:
@@ -83,7 +85,7 @@ class LightBlueToolManager(metaclass=Singleton):
         """
         if instance in self._registed_instance:
             return
-        logger.info(f"Registering tool: {instance}")
+        logger.debug(f"Registering tool: {instance}")
         self._registed_instance.append(instance)
 
     def get_sub_agent_tools(self) -> list[Tool]:
