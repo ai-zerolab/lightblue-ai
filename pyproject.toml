@@ -1,7 +1,7 @@
 [project]
 name = "lightblue-ai"
 version = "0.0.1"
-description = "Light Blue is an agent designed for generating HTML."
+description = "Light Blue is a lightweight agent designed for coding."
 authors = [{ name = "Wh1isper", email = "jizhongsheng957@gmail.com" }]
 readme = "README.md"
 keywords = ['python']
