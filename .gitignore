@@ -140,3 +140,4 @@ cython_debug/
 #.idea/
 mcp.json
 prompt.md
+all_messages.json
