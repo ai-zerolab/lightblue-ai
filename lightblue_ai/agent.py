@@ -35,6 +35,7 @@ class LightBlueAgent[T]:
         result_tool_description: str | None = None,
         tools: list[Tool] | None = None,
         mcp_servers: list[MCPServer] | None = None,
+        retries: int = 3,
     ):
         self.tool_manager = LightBlueToolManager()
         self.settings = Settings()
@@ -52,6 +53,7 @@ class LightBlueAgent[T]:
             system_prompt=system_prompt or get_system_prompt(),
             tools=[*tools, *self.tool_manager.get_all_tools()],
             mcp_servers=[*mcp_servers, *get_mcp_servers()],
+            retries=retries,
         )
 
     async def run(
