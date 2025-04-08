@@ -29,6 +29,7 @@ dependencies = [
     "pydantic-ai>=0.0.48",
     "pydantic-settings>=2.8.1",
     "python-dotenv>=1.1.0",
+    "rich>=14.0.0",
     "tavily-python>=0.5.3",
     "typer>=0.15.2",
     "typing-extensions>=4.13.0",
