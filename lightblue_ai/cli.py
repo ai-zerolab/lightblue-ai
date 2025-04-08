@@ -1,14 +1,31 @@
 import asyncio
 import functools
+import json
 from pathlib import Path
 
 import typer
-from pydantic_ai import Agent
+from pydantic_ai import BinaryContent
+from pydantic_ai.messages import (
+    AgentStreamEvent,
+    FunctionToolCallEvent,
+    FunctionToolResultEvent,
+    HandleResponseEvent,
+    ModelMessagesTypeAdapter,
+    PartDeltaEvent,
+    PartStartEvent,
+    RetryPromptPart,
+    TextPart,
+    TextPartDelta,
+    ToolReturnPart,
+)
+from pydantic_ai.usage import Usage
+from rich.console import Console
+from rich.live import Live
+from rich.markdown import Markdown
 
 from lightblue_ai.agent import LightBlueAgent
 from lightblue_ai.log import logger
 from lightblue_ai.mcps import get_mcp_servers
-from lightblue_ai.utils import format_part
 
 app = typer.Typer()
 
@@ -21,10 +38,97 @@ def make_sync(func):
     return wrapper
 
 
+class ResponseEventHandler:
+    def __init__(self):
+        self.parts = {}  # Track parts by index
+        self.tool_calls = {}  # Track tool calls by ID
+        self.tool_results = {}  # Track tool results by ID
+        self.max_content_length = 1000  # Fixed truncation length
+
+    def truncate_content(self, content: str) -> str:
+        """Truncate content if it exceeds the maximum length."""
+        if len(content) > self.max_content_length:
+            return content[: self.max_content_length] + "... [truncated]"
+        return content
+
+    def update_from_event(self, event: HandleResponseEvent | AgentStreamEvent) -> str:
+        # Handle different event types and update the display content
+        if isinstance(event, PartStartEvent):
+            self.parts[event.index] = event.part
+        elif isinstance(event, PartDeltaEvent):
+            if event.index not in self.parts:
+                logger.warning(f"Part index {event.index} not found in parts.")
+                return
+                # Apply delta to existing part
+            if isinstance(event.delta, TextPartDelta):
+                part = self.parts[event.index]
+                if isinstance(part, TextPart):
+                    part.content += event.delta.content_delta
+        elif isinstance(event, FunctionToolCallEvent):
+            self.tool_calls[event.call_id] = event.part
+        elif isinstance(event, FunctionToolResultEvent):
+            self.tool_results[event.tool_call_id] = event.result
+
+        # Generate formatted content as Markdown
+        return self.format_content()
+
+    def format_content(self) -> str:
+        # Format the content for display as Markdown
+        formatted = []
+
+        # Format regular parts (text responses)
+        for _, part in sorted(self.parts.items()):
+            if isinstance(part, TextPart):
+                formatted.append(part.content)
+
+        # Format tool calls and results
+        for call_id, tool_call in self.tool_calls.items():
+            formatted.append(f"\n**Tool Call:** `{tool_call.tool_name}`\n")
+            formatted.append("```json")
+
+            # Truncate tool call arguments if necessary
+            if isinstance(tool_call.args, dict):
+                args_str = json.dumps(tool_call.args, indent=2)
+                formatted.append(self.truncate_content(args_str))
+            else:
+                formatted.append(self.truncate_content(str(tool_call.args)))
+
+            formatted.append("```")
+
+            # Add the result if available
+            if call_id in self.tool_results:
+                result = self.tool_results[call_id]
+                if isinstance(result, ToolReturnPart):
+                    formatted.append("\n**Tool Result:**\n")
+                    formatted.append("```")
+                    if isinstance(result.content, BinaryContent):
+                        formatted.append(
+                            self.truncate_content(
+                                f"Binary content({result.content.media_type}): {len(result.content.data)} bytes"
+                            )
+                        )
+                    # Truncate tool result if necessary
+                    else:
+                        formatted.append(self.truncate_content(result.model_response_str()))
+                    formatted.append("```")
+                elif isinstance(result, RetryPromptPart):
+                    formatted.append("\n**Tool Error:**\n")
+                    formatted.append("```")
+                    # Truncate error message if necessary
+                    formatted.append(self.truncate_content(result.model_response()))
+                    formatted.append("```")
+
+        return "\n".join(formatted)
+
+
 @app.command()
 @make_sync
 async def submit(
     prompt: str = typer.Argument("prompt.md", help="The prompt to send to the agent, text or file"),
+    message_history_json: Path = typer.Option(
+        default="message_history.json",
+        help="The path to store the result",
+    ),
     all_messages_json: Path = typer.Option(
         default="all_messages.json",
         help="The path to store the result",
@@ -34,43 +138,68 @@ async def submit(
         with open(prompt) as f:
             prompt = f.read()
 
-    agent = LightBlueAgent()
+    message_history = None
+    if Path(message_history_json).exists():
+        message_history = ModelMessagesTypeAdapter.validate_json(message_history_json.read_bytes())
 
-    result = await agent.run(prompt)
-    print(result.data)
+    agent = LightBlueAgent()
+    usage = Usage()
+
+    console = Console()
+    with console.status("[bold blue]Processing...[/bold blue]"):
+        result = await agent.run(prompt, message_history=message_history, usage=usage)
+
+    console.print(Markdown(result.data))
 
     with all_messages_json.open("wb") as f:
         f.write(result.all_messages_json())
 
-    print(f"Usage: {result.usage()}")
-    print(f"Saved all messages to {all_messages_json}")
+    console.print(f"[bold green]Usage:[/bold green] {usage}")
+    console.print(f"[bold green]Saved all messages to[/bold green] {all_messages_json.absolute.as_posix()}")
 
 
 @app.command()
 @make_sync
-async def stream(  # noqa: C901
+async def stream(
     prompt: str = typer.Argument("prompt.md", help="The prompt to send to the agent, text or file"),
+    message_history_json: Path = typer.Option(
+        default="message_history.json",
+        help="The path to store the result",
+    ),
+    all_messages_json: Path = typer.Option(
+        default="all_messages.json",
+        help="The path to store the result",
+    ),
 ):
     if Path(prompt).exists():
         with open(prompt) as f:
             prompt = f.read()
+
+    message_history = None
+    if Path(message_history_json).exists():
+        message_history = ModelMessagesTypeAdapter.validate_json(message_history_json.read_bytes())
+
+    usage = Usage()
     agent = LightBlueAgent()
-    async for node in agent.iter(prompt):
-        if Agent.is_user_prompt_node(node):
-            # A user prompt node => The user has provided input
-            if node.system_prompts:
-                print(f"System: {node.system_prompts}")
-            if node.user_prompt:
-                print(f"User: {node.user_prompt}")
-        elif Agent.is_model_request_node(node):
-            for part in node.request.parts:
-                print(f"->[{part.part_kind}]: {format_part(part)}")
-        elif Agent.is_call_tools_node(node):
-            for part in node.model_response.parts:
-                print(f"Assistant[{part.part_kind}]: {format_part(part)}")
-        elif Agent.is_end_node(node):
-            result = node.data
-            print(f"Final Result: {result.data}")
+    console = Console()
+    event_handler = ResponseEventHandler()
+
+    with Live("", console=console, refresh_per_second=15, vertical_overflow="visible") as live:
+        async with agent.iter(prompt, message_history=message_history, usage=usage) as run:
+            async for event in agent.yield_response_event(run):
+                # Log the raw event for debugging
+                logger.debug(f"Event: {event}")
+                # Update the display with the new event
+                content = event_handler.update_from_event(event)
+                # Use Markdown for rendering
+                live.update(Markdown(content))
+
+    console.print(Markdown(run.result.data))
+    with all_messages_json.open("wb") as f:
+        f.write(run.result.all_messages_json())
+
+    console.print(f"[bold green]Usage:[/bold green] {usage}")
+    console.print(f"[bold green]Saved all messages to[/bold green] {all_messages_json.absolute().as_posix()}")
 
 
 @app.command()

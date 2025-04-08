@@ -1,6 +1,8 @@
+from collections.abc import AsyncIterator
+
 from inline_snapshot import snapshot
 from pydantic_ai.messages import ModelMessage, ModelResponse, TextPart
-from pydantic_ai.models.function import AgentInfo, FunctionModel
+from pydantic_ai.models.function import AgentInfo, DeltaToolCalls, FunctionModel
 
 from lightblue_ai.agent import LightBlueAgent
 
@@ -13,8 +15,12 @@ def return_tools(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse
     )
 
 
+async def stream_function(messages: list[ModelMessage], info: AgentInfo) -> AsyncIterator[str | DeltaToolCalls]:
+    yield "hello"
+
+
 async def test_agent():
-    agent = LightBlueAgent(model=FunctionModel(return_tools))
+    agent = LightBlueAgent(model=FunctionModel(function=return_tools, stream_function=stream_function))
 
     (await agent.run("Hello, world!")).data == snapshot(
         """\
@@ -186,5 +192,6 @@ celsius_to_fahrenheit, Convert Celsius to Fahrenheit.
 """
     )
 
-    async for node in agent.iter("hello"):
-        assert node
+    async with agent.iter("Hello, world!") as run:
+        async for event in agent.yield_response_event(run):
+            assert event
