@@ -1,7 +1,3 @@
-"""
-FIXME: Pydantic-ai not support tool call response image yet, we patch it here
-"""
-
 from __future__ import annotations
 
 import functools
@@ -32,12 +28,7 @@ from pydantic_ai.messages import (
     ToolReturnPart,
     UserPromptPart,
 )
-from pydantic_ai.models import (
-    Model,
-    ModelRequestParameters,
-    StreamedResponse,
-    cached_async_http_client,
-)
+from pydantic_ai.models import Model, ModelRequestParameters, StreamedResponse, cached_async_http_client
 from pydantic_ai.providers import Provider, infer_provider
 from pydantic_ai.settings import ModelSettings
 from pydantic_ai.tools import ToolDefinition
@@ -50,12 +41,14 @@ if TYPE_CHECKING:
     from mypy_boto3_bedrock_runtime.type_defs import (
         ContentBlockOutputTypeDef,
         ContentBlockUnionTypeDef,
+        ConverseRequestTypeDef,
         ConverseResponseTypeDef,
         ConverseStreamMetadataEventTypeDef,
         ConverseStreamOutputTypeDef,
         ImageBlockTypeDef,
         InferenceConfigurationTypeDef,
         MessageUnionTypeDef,
+        SystemContentBlockTypeDef,
         ToolChoiceTypeDef,
         ToolTypeDef,
     )
@@ -215,7 +208,7 @@ class BedrockConverseModel(Model):
                     items.append(TextPart(content=text))
                 else:
                     tool_use = item.get("toolUse")
-                    assert tool_use is not None, f"Found a content that is not a text or tool use: {item}"  # noqa: S101
+                    assert tool_use is not None, f"Found a content that is not a text or tool use: {item}"
                     items.append(
                         ToolCallPart(
                             tool_name=tool_use["name"],
@@ -266,25 +259,20 @@ class BedrockConverseModel(Model):
         else:
             tool_choice = {"auto": {}}
 
-        system_prompt, bedrock_messages = await self._map_message(messages)
+        system_prompt, bedrock_messages = await self._map_messages(messages)
         inference_config = self._map_inference_config(model_settings)
 
-        params = {
+        params: ConverseRequestTypeDef = {
             "modelId": self.model_name,
             "messages": bedrock_messages,
-            "system": [{"text": system_prompt}],
+            "system": system_prompt,
             "inferenceConfig": inference_config,
-            **(
-                {
-                    "toolConfig": {
-                        "tools": tools,
-                        **({"toolChoice": tool_choice} if tool_choice else {}),
-                    }
-                }
-                if tools
-                else {}
-            ),
         }
+        if tools:
+            params["toolConfig"] = {"tools": tools}
+            if tool_choice:
+                params["toolConfig"]["toolChoice"] = tool_choice
+
         if stream:
             model_response = await anyio.to_thread.run_sync(functools.partial(self.client.converse_stream, **params))
             model_response = model_response["stream"]
@@ -311,19 +299,21 @@ class BedrockConverseModel(Model):
 
         return inference_config
 
-    async def _map_message(self, messages: list[ModelMessage]) -> tuple[str, list[MessageUnionTypeDef]]:  # noqa: C901
+    async def _map_messages(
+        self, messages: list[ModelMessage]
+    ) -> tuple[list[SystemContentBlockTypeDef], list[MessageUnionTypeDef]]:
         """Just maps a `pydantic_ai.Message` to the Bedrock `MessageUnionTypeDef`."""
-        system_prompt: str = ""
+        system_prompt: list[SystemContentBlockTypeDef] = []
         bedrock_messages: list[MessageUnionTypeDef] = []
         for m in messages:
             if isinstance(m, ModelRequest):
                 for part in m.parts:
                     if isinstance(part, SystemPromptPart):
-                        system_prompt += part.content
+                        system_prompt.append({"text": part.content})
                     elif isinstance(part, UserPromptPart):
                         bedrock_messages.extend(await self._map_user_prompt(part))
                     elif isinstance(part, ToolReturnPart):
-                        assert part.tool_call_id is not None  # noqa: S101
+                        assert part.tool_call_id is not None
                         if isinstance(part.content, BinaryContent):
                             if part.content.is_image:
                                 content = [
@@ -373,12 +363,9 @@ class BedrockConverseModel(Model):
                     elif isinstance(part, RetryPromptPart):
                         # TODO(Marcelo): We need to add a test here.
                         if part.tool_name is None:  # pragma: no cover
-                            bedrock_messages.append({
-                                "role": "user",
-                                "content": [{"text": part.model_response()}],
-                            })
+                            bedrock_messages.append({"role": "user", "content": [{"text": part.model_response()}]})
                         else:
-                            assert part.tool_call_id is not None  # noqa: S101
+                            assert part.tool_call_id is not None
                             bedrock_messages.append({
                                 "role": "user",
                                 "content": [
@@ -397,7 +384,7 @@ class BedrockConverseModel(Model):
                     if isinstance(item, TextPart):
                         content.append({"text": item.content})
                     else:
-                        assert isinstance(item, ToolCallPart)  # noqa: S101
+                        assert isinstance(item, ToolCallPart)
                         content.append(self._map_tool_call(item))
                 bedrock_messages.append({"role": "assistant", "content": content})
             else:
@@ -405,7 +392,7 @@ class BedrockConverseModel(Model):
         return system_prompt, bedrock_messages
 
     @staticmethod
-    async def _map_user_prompt(part: UserPromptPart) -> list[MessageUnionTypeDef]:  # noqa: C901
+    async def _map_user_prompt(part: UserPromptPart) -> list[MessageUnionTypeDef]:
         content: list[ContentBlockUnionTypeDef] = []
         if isinstance(part.content, str):
             content.append({"text": part.content})
@@ -415,65 +402,30 @@ class BedrockConverseModel(Model):
                 if isinstance(item, str):
                     content.append({"text": item})
                 elif isinstance(item, BinaryContent):
-                    format = item.format  # noqa: A001
+                    format = item.format
                     if item.is_document:
                         document_count += 1
                         name = f"Document {document_count}"
-                        assert format in (  # noqa: S101
-                            "pdf",
-                            "txt",
-                            "csv",
-                            "doc",
-                            "docx",
-                            "xls",
-                            "xlsx",
-                            "html",
-                            "md",
-                        )
-                        content.append({
-                            "document": {
-                                "name": name,
-                                "format": format,
-                                "source": {"bytes": item.data},
-                            }
-                        })
+                        assert format in ("pdf", "txt", "csv", "doc", "docx", "xls", "xlsx", "html", "md")
+                        content.append({"document": {"name": name, "format": format, "source": {"bytes": item.data}}})
                     elif item.is_image:
-                        assert format in ("jpeg", "png", "gif", "webp")  # noqa: S101
-                        content.append({
-                            "image": {
-                                "format": format,
-                                "source": {"bytes": item.data},
-                            }
-                        })
+                        assert format in ("jpeg", "png", "gif", "webp")
+                        content.append({"image": {"format": format, "source": {"bytes": item.data}}})
                     else:
                         raise NotImplementedError("Binary content is not supported yet.")
                 elif isinstance(item, (ImageUrl, DocumentUrl)):
                     response = await cached_async_http_client().get(item.url)
                     response.raise_for_status()
                     if item.kind == "image-url":
-                        format = item.media_type.split("/")[1]  # noqa: A001
-                        assert format in (  # noqa: S101
-                            "jpeg",
-                            "png",
-                            "gif",
-                            "webp",
-                        ), f"Unsupported image format: {format}"
-                        image: ImageBlockTypeDef = {
-                            "format": format,
-                            "source": {"bytes": response.content},
-                        }
+                        format = item.media_type.split("/")[1]
+                        assert format in ("jpeg", "png", "gif", "webp"), f"Unsupported image format: {format}"
+                        image: ImageBlockTypeDef = {"format": format, "source": {"bytes": response.content}}
                         content.append({"image": image})
                     elif item.kind == "document-url":
                         document_count += 1
                         name = f"Document {document_count}"
                         data = response.content
-                        content.append({
-                            "document": {
-                                "name": name,
-                                "format": item.format,
-                                "source": {"bytes": data},
-                            }
-                        })
+                        content.append({"document": {"name": name, "format": item.format, "source": {"bytes": data}}})
                 elif isinstance(item, AudioUrl):  # pragma: no cover
                     raise NotImplementedError("Audio is not supported yet.")
                 else:
@@ -483,11 +435,7 @@ class BedrockConverseModel(Model):
     @staticmethod
     def _map_tool_call(t: ToolCallPart) -> ContentBlockOutputTypeDef:
         return {
-            "toolUse": {
-                "toolUseId": _utils.guard_tool_call_id(t=t),
-                "name": t.tool_name,
-                "input": t.args_as_dict(),
-            }
+            "toolUse": {"toolUseId": _utils.guard_tool_call_id(t=t), "name": t.tool_name, "input": t.args_as_dict()}
         }
 
 
@@ -499,7 +447,7 @@ class BedrockStreamedResponse(StreamedResponse):
     _event_stream: EventStream[ConverseStreamOutputTypeDef]
     _timestamp: datetime = field(default_factory=_utils.now_utc)
 
-    async def _get_event_iterator(self) -> AsyncIterator[ModelResponseStreamEvent]:  # noqa: C901
+    async def _get_event_iterator(self) -> AsyncIterator[ModelResponseStreamEvent]:
         """Return an async iterator of [`ModelResponseStreamEvent`][pydantic_ai.messages.ModelResponseStreamEvent]s.
 
         This method should be implemented by subclasses to translate the vendor-specific stream of events into
@@ -578,10 +526,9 @@ class _AsyncIteratorWrapper(Generic[T]):
         try:
             # Run the synchronous next() call in a thread pool
             item = await anyio.to_thread.run_sync(next, self.sync_iterator)
+            return item
         except RuntimeError as e:
             if type(e.__cause__) is StopIteration:
-                raise StopAsyncIteration  # noqa: B904
+                raise StopAsyncIteration
             else:
-                raise e  # noqa: TRY201
-        else:
-            return item
+                raise e
