@@ -149,6 +149,8 @@ async def submit(
     usage = Usage()
 
     console = Console()
+
+    console.print(Markdown(prompt))
     with console.status("[bold blue]Processing...[/bold blue]"):
         result = await agent.run(prompt, message_history=message_history, usage=usage)
 
@@ -187,6 +189,7 @@ async def stream(
     console = Console()
     event_handler = ResponseEventHandler()
 
+    console.print(Markdown(prompt))
     with Live("", console=console, refresh_per_second=15, vertical_overflow="visible") as live:
         async with agent.iter(prompt, message_history=message_history, usage=usage) as run:
             async for event in agent.yield_response_event(run):
