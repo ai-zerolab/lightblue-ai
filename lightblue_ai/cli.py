@@ -40,9 +40,8 @@ def make_sync(func):
 
 class ResponseEventHandler:
     def __init__(self):
-        self.parts = {}  # Track parts by index
-        self.tool_calls = {}  # Track tool calls by ID
-        self.tool_results = {}  # Track tool results by ID
+        self.events = []  # Track all events in chronological order
+        self.parts = {}  # Track parts by index for delta updates
         self.max_content_length = 1000  # Fixed truncation length
 
     def truncate_content(self, content: str) -> str:
@@ -55,19 +54,26 @@ class ResponseEventHandler:
         # Handle different event types and update the display content
         if isinstance(event, PartStartEvent):
             self.parts[event.index] = event.part
+            self.events.append(("text", event.part))
         elif isinstance(event, PartDeltaEvent):
             if event.index not in self.parts:
                 logger.warning(f"Part index {event.index} not found in parts.")
-                return
-                # Apply delta to existing part
+                return self.format_content()
+            # Apply delta to existing part
             if isinstance(event.delta, TextPartDelta):
                 part = self.parts[event.index]
                 if isinstance(part, TextPart):
                     part.content += event.delta.content_delta
+
+                    # Update the corresponding event in the events list
+                    for _, (event_type, event_data) in enumerate(self.events):
+                        if event_type == "text" and event_data is part:
+                            # No need to update since we're modifying the object directly
+                            break
         elif isinstance(event, FunctionToolCallEvent):
-            self.tool_calls[event.call_id] = event.part
+            self.events.append(("tool_call", event.part))
         elif isinstance(event, FunctionToolResultEvent):
-            self.tool_results[event.tool_call_id] = event.result
+            self.events.append(("tool_result", event.result))
 
         # Generate formatted content as Markdown
         return self.format_content()
@@ -76,28 +82,25 @@ class ResponseEventHandler:
         # Format the content for display as Markdown
         formatted = []
 
-        # Format regular parts (text responses)
-        for _, part in sorted(self.parts.items()):
-            if isinstance(part, TextPart):
-                formatted.append(part.content)
+        # Process events in chronological order
+        for event_type, event_data in self.events:
+            if event_type == "text" and isinstance(event_data, TextPart):
+                formatted.append(event_data.content)
+            elif event_type == "tool_call":
+                tool_call = event_data
+                formatted.append(f"\n**Tool Call:** `{tool_call.tool_name}`\n")
+                formatted.append("```json")
 
-        # Format tool calls and results
-        for call_id, tool_call in self.tool_calls.items():
-            formatted.append(f"\n**Tool Call:** `{tool_call.tool_name}`\n")
-            formatted.append("```json")
+                # Truncate tool call arguments if necessary
+                if isinstance(tool_call.args, dict):
+                    args_str = json.dumps(tool_call.args, indent=2)
+                    formatted.append(self.truncate_content(args_str))
+                else:
+                    formatted.append(self.truncate_content(str(tool_call.args)))
 
-            # Truncate tool call arguments if necessary
-            if isinstance(tool_call.args, dict):
-                args_str = json.dumps(tool_call.args, indent=2)
-                formatted.append(self.truncate_content(args_str))
-            else:
-                formatted.append(self.truncate_content(str(tool_call.args)))
-
-            formatted.append("```")
-
-            # Add the result if available
-            if call_id in self.tool_results:
-                result = self.tool_results[call_id]
+                formatted.append("```")
+            elif event_type == "tool_result":
+                result = event_data
                 if isinstance(result, ToolReturnPart):
                     formatted.append("\n**Tool Result:**\n")
                     formatted.append("```")
@@ -194,7 +197,6 @@ async def stream(
                 # Use Markdown for rendering
                 live.update(Markdown(content))
 
-    console.print(Markdown(run.result.data))
     with all_messages_json.open("wb") as f:
         f.write(run.result.all_messages_json())
 
