@@ -39,10 +39,13 @@ class LightBlueAgent[T]:
         mcp_servers: list[MCPServer] | None = None,
         retries: int = 3,
     ):
+        self.settings = Settings()
         model = model or self.settings.default_model
+        tools = tools or []
+        mcp_servers = mcp_servers or []
+
         if not model:
             raise ValueError("model or ENV `DEFAULT_MODEL` must be set")
-
         model_name = model.model_name if isinstance(model, Model) else model
         if "anthropic" not in model_name and not isinstance(model, FunctionModel):
             max_description_length = 1000
@@ -52,10 +55,6 @@ class LightBlueAgent[T]:
             self.enable_multi_turn = False
 
         self.tool_manager = LightBlueToolManager(max_description_length=max_description_length)
-        self.settings = Settings()
-        tools = tools or []
-        mcp_servers = mcp_servers or []
-
         self.agent = Agent(
             infer_model(model),
             result_type=result_type,

@@ -191,20 +191,37 @@ async def stream(
 
     console.print(Markdown(prompt))
     with Live("", console=console, vertical_overflow="visible") as live:
-        async with agent.iter(prompt, message_history=message_history, usage=usage) as run:
-            async for event in agent.yield_response_event(run):
-                # Log the raw event for debugging
-                logger.debug(f"Event: {event}")
-                # Update the display with the new event
-                content = event_handler.update_from_event(event)
-                # Use Markdown for rendering
-                live.update(Markdown(content))
+        if agent.enable_multi_turn:
+            async for i, run in enumerate(agent.iter_multiple(prompt, message_history=message_history, usage=usage)):
+                async for event in agent.yield_response_event(run):
+                    # Log the raw event for debugging
+                    logger.debug(f"Event: {event}")
+                    # Update the display with the new event
+                    content = event_handler.update_from_event(event)
+                    # Use Markdown for rendering
+                    live.update(Markdown(content))
+                current_round_file = all_messages_json.with_name(f"{all_messages_json.stem}_{i}.json")
+                with current_round_file.open("wb") as f:
+                    console.print(f"Saved current round to {current_round_file.absolute().as_posix()}")
+                    f.write(run.result.all_messages_json())
+                console.print(f"[bold green]Round {i} Usage:[/bold green] {usage}")
+        else:
+            async with agent.iter(prompt, message_history=message_history, usage=usage) as run:
+                async for event in agent.yield_response_event(run):
+                    # Log the raw event for debugging
+                    logger.debug(f"Event: {event}")
+                    # Update the display with the new event
+                    content = event_handler.update_from_event(event)
+                    # Use Markdown for rendering
+                    live.update(Markdown(content))
 
-    with all_messages_json.open("wb") as f:
-        f.write(run.result.all_messages_json())
+            with all_messages_json.open("wb") as f:
+                console.print(
+                    f"[bold green]Saved all messages to[/bold green] {all_messages_json.absolute().as_posix()}"
+                )
+                f.write(run.result.all_messages_json())
 
-    console.print(f"[bold green]Usage:[/bold green] {usage}")
-    console.print(f"[bold green]Saved all messages to[/bold green] {all_messages_json.absolute().as_posix()}")
+    console.print(f"[bold green]All Usage:[/bold green] {usage}")
 
 
 @app.command()
