@@ -141,4 +141,5 @@ cython_debug/
 mcp.json
 prompt.md
 all_messages.json
+all_messages_*.json
 .DS_Store

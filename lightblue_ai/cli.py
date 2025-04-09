@@ -192,7 +192,8 @@ async def stream(
     console.print(Markdown(prompt))
     with Live("", console=console, vertical_overflow="visible") as live:
         if agent.enable_multi_turn:
-            async for i, run in enumerate(agent.iter_multiple(prompt, message_history=message_history, usage=usage)):
+            i = 0
+            async for run in agent.iter_multiple(prompt, message_history=message_history, usage=usage):
                 async for event in agent.yield_response_event(run):
                     # Log the raw event for debugging
                     logger.debug(f"Event: {event}")
@@ -205,6 +206,7 @@ async def stream(
                     console.print(f"Saved current round to {current_round_file.absolute().as_posix()}")
                     f.write(run.result.all_messages_json())
                 console.print(f"[bold green]Round {i} Usage:[/bold green] {usage}")
+                i += 1
         else:
             async with agent.iter(prompt, message_history=message_history, usage=usage) as run:
                 async for event in agent.yield_response_event(run):

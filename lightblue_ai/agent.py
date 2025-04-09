@@ -38,6 +38,7 @@ class LightBlueAgent[T]:
         tools: list[Tool] | None = None,
         mcp_servers: list[MCPServer] | None = None,
         retries: int = 3,
+        max_description_length: int | None = None,
     ):
         self.settings = Settings()
         model = model or self.settings.default_model
@@ -47,12 +48,15 @@ class LightBlueAgent[T]:
         if not model:
             raise ValueError("model or ENV `DEFAULT_MODEL` must be set")
         model_name = model.model_name if isinstance(model, Model) else model
+        logger.info(f"Using model: {model_name}")
         if "anthropic" not in model_name and not isinstance(model, FunctionModel):
-            max_description_length = 1000
+            max_description_length = max_description_length or 1000
             self.enable_multi_turn = True
+            logger.info(f"Enabling multi-turn mode, current max description length: {max_description_length}")
         else:
             max_description_length = None
             self.enable_multi_turn = False
+            logger.info("Disabling multi-turn mode")
 
         self.tool_manager = LightBlueToolManager(max_description_length=max_description_length)
         self.agent = Agent(
@@ -100,7 +104,9 @@ class LightBlueAgent[T]:
         async with (
             self.agent.run_mcp_servers(),
             self.agent.iter(
-                user_prompt, message_history=message_history, deps=PendingMessage(enabled=self.enable_multi_turn)
+                user_prompt,
+                message_history=message_history,
+                deps=PendingMessage(enabled=self.enable_multi_turn),
             ) as run,
         ):
             yield run
@@ -116,11 +122,11 @@ class LightBlueAgent[T]:
     ) -> AsyncIterator[AgentRun]:
         pending_messages = PendingMessage(enabled=self.enable_multi_turn)
 
-        async with self.agent.run_mcp_servers():
-            async for run in self.agent.iter_multiple(
-                user_prompts, message_history=message_history, deps=pending_messages
-            ):
-                yield run
+        async with (
+            self.agent.run_mcp_servers(),
+            self.agent.iter(user_prompts, message_history=message_history, deps=pending_messages) as run,
+        ):
+            yield run
 
         if usage:
             usage.incr(run.usage(), requests=1)
@@ -128,7 +134,7 @@ class LightBlueAgent[T]:
         while pending_messages.has_messages():
             mess = pending_messages.model_copy(deep=True)
             pending_messages.clear()
-            async for run in self.agent.iter(mess, usage=usage, deps=pending_messages):
+            async with self.agent.iter(mess, usage=usage, deps=pending_messages) as run:
                 yield run
 
             if usage:
