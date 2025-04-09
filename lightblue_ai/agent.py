@@ -12,6 +12,7 @@ from pydantic_ai.messages import (
     UserContent,
 )
 from pydantic_ai.models import Model
+from pydantic_ai.models.function import FunctionModel
 from pydantic_ai.tools import Tool
 from pydantic_ai.usage import Usage
 
@@ -37,16 +38,23 @@ class LightBlueAgent[T]:
         mcp_servers: list[MCPServer] | None = None,
         retries: int = 3,
     ):
-        self.tool_manager = LightBlueToolManager()
+        model = model or self.settings.default_model
+        if not model:
+            raise ValueError("model or ENV `DEFAULT_MODEL` must be set")
+
+        model_name = model.model_name if isinstance(model, Model) else model
+        if "anthropic" not in model_name and not isinstance(model, FunctionModel):
+            max_description_length = 1000
+        else:
+            max_description_length = None
+
+        self.tool_manager = LightBlueToolManager(max_description_length=max_description_length)
         self.settings = Settings()
         tools = tools or []
         mcp_servers = mcp_servers or []
 
-        if not (model or self.settings.default_model):
-            raise ValueError("model or ENV `DEFAULT_MODEL` must be set")
-
         self.agent = Agent(
-            infer_model(model or self.settings.default_model),
+            infer_model(model),
             result_type=result_type,
             result_tool_name=result_tool_name,
             result_tool_description=result_tool_description,
