@@ -1,6 +1,6 @@
 In this case we enabled all tools. AI used tools to search news, search/generate images, generate html, and package them into a website.
 
-Visit the case in [yourware](https://qs6umhk5lp.app-staging.yourware.so/)
+Visit the case in [yourware](https://so8fdiakv5.app.yourware.so/)
 
 ### .env file content
 
