@@ -146,6 +146,25 @@ Before using this tool:
     - Use the LS tool to verify the parent directory exists and is the correct location.
 , {'additionalProperties': False, 'properties': {'file_path': {'description': 'Absolute path to the file to write', 'type': 'string'}, 'content': {'description': 'Content to write to the file', 'type': 'string'}}, 'required': ['file_path', 'content'], 'type': 'object'}
 
+convert_to_markdown, MarkItDown is a lightweight Python utility for converting various files to Markdown.
+focus on preserving important document structure and content as Markdown (including: headings, lists, tables, links, etc.) While the output is often reasonably presentable and human-friendly, it is meant to be consumed by text analysis tools
+At present, MarkItDown supports:
+- PDF
+- PowerPoint
+- Word
+- Excel
+- Images (EXIF metadata and OCR)
+- Audio (EXIF metadata and speech transcription)
+- HTML
+- Text-based formats (CSV, JSON, XML)
+- ZIP files (iterates over contents)
+- Youtube URLs
+- EPubs
+- ... and more!
+
+Use this tool when the file cannot be read with View tool
+, {'additionalProperties': False, 'properties': {'source': {'description': 'source with following schema:local file: `file:///path/to/file` or just path of the file: `/path/to/file`url: `https://example.com/file.pdf` or `http://example.com/file.pdf`data: `data;base64,<base64-encoded-data>`', 'type': 'string'}}, 'required': ['source'], 'type': 'object'}
+
 PDF2Image, Converts a PDF file to a PNG image file. The file_path parameter must be an absolute path to a PDF file. The output_path parameter is optional and will default to the same directory as the input file if not provided. , {'additionalProperties': False, 'properties': {'file_path': {'description': 'Absolute path to the PDF file to convert', 'type': 'string'}, 'output_path': {'anyOf': [{'type': 'string'}, {'type': 'null'}], 'description': 'Optional. Absolute path to the directory to save the images. If not provided, the images will be saved in the same directory as the PDF file.'}}, 'required': ['file_path', 'output_path'], 'type': 'object'}
 
 search_with_tavily, Performs web searches using Tavily.

@@ -16,6 +16,7 @@ def test_manager():
         "dispatch_agent",
         "save_http_file",
         "thinking",
+        "convert_to_markdown",
     }
     sub_agent_tools = {
         "GlobTool",
@@ -25,6 +26,7 @@ def test_manager():
         "View",
         "save_http_file",
         "thinking",
+        "convert_to_markdown",
     }
     read_tools = {
         "GlobTool",
@@ -33,6 +35,7 @@ def test_manager():
         "PDF2Image",
         "View",
         "thinking",
+        "convert_to_markdown",
     }
     write_tools = {"Edit", "Replace"}
     exec_tools = {"BASH", "dispatch_agent"}
