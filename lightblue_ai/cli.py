@@ -160,7 +160,7 @@ async def submit(
         f.write(result.all_messages_json())
 
     console.print(f"[bold green]Usage:[/bold green] {usage}")
-    console.print(f"[bold green]Saved all messages to[/bold green] {all_messages_json.absolute.as_posix()}")
+    console.print(f"[bold green]Saved all messages to[/bold green] {all_messages_json.absolute().as_posix()}")
 
 
 @app.command()
