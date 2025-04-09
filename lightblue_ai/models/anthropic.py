@@ -315,7 +315,7 @@ class AnthropicModel(Model):
                                     type="image",
                                 )
                             elif request_part.content.media_type == "application/pdf":
-                                yield DocumentBlockParam(
+                                content = DocumentBlockParam(
                                     source=Base64PDFSourceParam(
                                         data=io.BytesIO(request_part.content.data),
                                         media_type="application/pdf",
