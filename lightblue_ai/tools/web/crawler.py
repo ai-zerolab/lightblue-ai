@@ -12,6 +12,7 @@ from lightblue_ai.tools.extensions import hookimpl
 
 class TavilyTool(LightBlueTool):
     def __init__(self):
+        self.name = "search_with_tavily"
         self.settings = Settings()
         self.scopes = [Scope.web]
         self.description = """Performs web searches using Tavily.
@@ -47,19 +48,14 @@ Useful for retrieving up-to-date information, specific data, or detailed backgro
     def init_tool(self) -> Tool:
         return Tool(
             function=self._search_with_tavily,
-            name="search_with_tavily",
+            name=self.name,
             description=self.description,
         )
 
 
-class JinaTool(LightBlueTool):
-    def __init__(self):
-        self.settings = Settings()
-        self.scopes = [Scope.web]
-
-
 class JinaSearchTool(LightBlueTool):
     def __init__(self):
+        self.name = "search_with_jina"
         self.settings = Settings()
         self.scopes = [Scope.web]
         self.description = """Performs web searches using Jina.
@@ -94,13 +90,14 @@ Useful for retrieving up-to-date information, specific data, or detailed backgro
     def init_tool(self) -> Tool:
         return Tool(
             function=self._search_with_jina,
-            name="search_with_jina",
+            name=self.name,
             description=self.description,
         )
 
 
 class JinaReaderTool(LightBlueTool):
     def __init__(self):
+        self.name = "read_web_with_jina"
         self.settings = Settings()
         self.scopes = [Scope.web]
         self.description = """Reads web pages using Jina. Results are in Markdown format. Use this tool to forcus on the content of the page."""
@@ -125,7 +122,7 @@ class JinaReaderTool(LightBlueTool):
     def init_tool(self) -> Tool:
         return Tool(
             function=self._read_web,
-            name="read_web_with_jina",
+            name=self.name,
             description=self.description,
         )
 

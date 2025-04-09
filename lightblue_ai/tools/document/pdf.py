@@ -13,11 +13,14 @@ class Pdf2ImageTool(LightBlueTool):
     """To use this tool, you need to install poppler via `brew install poppler`"""
 
     def __init__(self):
+        self.name = "convert_pdf_to_images"
         self.scopes = [Scope.read]
         self.description = (
-            "Converts a PDF file to a PNG image file. "
+            "Converts a PDF file to multiple PNG image files. "
             "The file_path parameter must be an absolute path to a PDF file. "
-            "The output_path parameter is optional and will default to the same directory as the input file if not provided. "
+            "The output_path parameter is optional and will default to the same directory as the input file if not provided."
+            "For PDF file, try convert_to_markdown tool first. "
+            "For using this tool, you should to use View tool to view the images."
         )
 
     async def _pdf2images(
@@ -71,7 +74,7 @@ class Pdf2ImageTool(LightBlueTool):
     def init_tool(self) -> Tool:
         return Tool(
             function=self._pdf2images,
-            name="PDF2Image",
+            name=self.name,
             description=self.description,
         )
 

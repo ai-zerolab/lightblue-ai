@@ -24,7 +24,7 @@ async def test_agent():
 
     (await agent.run("Hello, world!")).data == snapshot(
         """\
-thinking, Use the tool to think about something. It will not obtain new information or change the database, but just append the thought to the log. Use it when complex reasoning or some cache memory is needed., {'additionalProperties': False, 'properties': {'thought': {'description': 'A thought to think about.', 'type': 'string'}}, 'required': ['thought'], 'type': 'object'}
+thinking, ('Use the tool to think about something. It will not obtain new information or change the database, but just append the thought to the log. Use it when complex reasoning or some cache memory is needed.',), {'additionalProperties': False, 'properties': {'thought': {'description': 'A thought to think about.', 'type': 'string'}}, 'required': ['thought'], 'type': 'object'}
 
 BASH, Executes the given Bash command in a persistent shell session with optional timeout, ensuring appropriate security measures.
 #### **Pre-Execution Checks**
@@ -165,7 +165,7 @@ At present, MarkItDown supports:
 Use this tool when the file cannot be read with View tool
 , {'additionalProperties': False, 'properties': {'source': {'description': 'source with following schema:local file: `file:///path/to/file` or just path of the file: `/path/to/file`url: `https://example.com/file.pdf` or `http://example.com/file.pdf`data: `data;base64,<base64-encoded-data>`', 'type': 'string'}}, 'required': ['source'], 'type': 'object'}
 
-PDF2Image, Converts a PDF file to a PNG image file. The file_path parameter must be an absolute path to a PDF file. The output_path parameter is optional and will default to the same directory as the input file if not provided. , {'additionalProperties': False, 'properties': {'file_path': {'description': 'Absolute path to the PDF file to convert', 'type': 'string'}, 'output_path': {'anyOf': [{'type': 'string'}, {'type': 'null'}], 'description': 'Optional. Absolute path to the directory to save the images. If not provided, the images will be saved in the same directory as the PDF file.'}}, 'required': ['file_path', 'output_path'], 'type': 'object'}
+convert_pdf_to_images, Converts a PDF file to multiple PNG image files. The file_path parameter must be an absolute path to a PDF file. The output_path parameter is optional and will default to the same directory as the input file if not provided.For PDF file, try convert_to_markdown tool first. For using this tool, you should to use View tool to view the images., {'additionalProperties': False, 'properties': {'file_path': {'description': 'Absolute path to the PDF file to convert', 'type': 'string'}, 'output_path': {'anyOf': [{'type': 'string'}, {'type': 'null'}], 'description': 'Optional. Absolute path to the directory to save the images. If not provided, the images will be saved in the same directory as the PDF file.'}}, 'required': ['file_path', 'output_path'], 'type': 'object'}
 
 search_with_tavily, Performs web searches using Tavily.
 If the initial query is too broad or results are not ideal, the LLM can refine the search by progressively reducing keywords to improve accuracy.
@@ -179,11 +179,11 @@ search_image, Search images from internet via Pixabay. Use this tool if you need
 query: A Search term. If omitted, all images are returned. This value may not exceed 100 characters. Example: "yellow+flower"
 , {'additionalProperties': False, 'properties': {'query': {'description': 'The search query', 'type': 'string'}}, 'required': ['query'], 'type': 'object'}
 
-save_http_file, Downloads files from the web (HTML, images, documents, etc.) and saves them to the specified path. Supports various file types including HTML, PNG, JPEG, PDF, and more., {'additionalProperties': False, 'properties': {'url': {'description': 'URL of the web resource to download', 'type': 'string'}, 'save_path': {'description': 'Path where the file should be saved', 'type': 'string'}}, 'required': ['url', 'save_path'], 'type': 'object'}
+save_web_to_file, Downloads files from the web (HTML, images, documents, etc.) and saves them to the specified path. Supports various file types including HTML, PNG, JPEG, PDF, and more., {'additionalProperties': False, 'properties': {'url': {'description': 'URL of the web resource to download', 'type': 'string'}, 'save_path': {'description': 'Path where the file should be saved', 'type': 'string'}}, 'required': ['url', 'save_path'], 'type': 'object'}
 
 generate_image_with_flux, Generate an image using the Flux API and save it to a local file., {'additionalProperties': False, 'properties': {'prompt': {'description': 'The text prompt for image generation', 'type': 'string'}, 'output_dir': {'description': 'The directory to save the image', 'type': 'string'}, 'model_name': {'default': 'flux.1.1-pro', 'description': 'The model version to use', 'type': 'string'}, 'width': {'anyOf': [{'type': 'integer'}, {'type': 'null'}], 'default': None, 'description': 'Width of the image in pixels'}, 'height': {'anyOf': [{'type': 'integer'}, {'type': 'null'}], 'default': None, 'description': 'Height of the image in pixels'}, 'seed': {'anyOf': [{'type': 'integer'}, {'type': 'null'}], 'default': None, 'description': 'Seed for reproducibility'}}, 'required': ['prompt', 'output_dir'], 'type': 'object'}
 
-dispatch_agent, Launch a new agent that has access to the following tools: GlobTool, GrepTool, LS, View.
+dispatch_agent, Launch a new agent that has access to the following tools: GlobTool, GrepTool, LS, View and others for searching information.
 
 When you are searching for a keyword or file and are not confident that you will find the right match on the first try, use this tool to perform the search for you. For example:
 

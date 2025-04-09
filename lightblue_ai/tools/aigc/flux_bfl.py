@@ -238,6 +238,7 @@ class ImageRequest:
 
 class FluxBflTool(LightBlueTool):
     def __init__(self):
+        self.name = "generate_image_with_flux"
         self.scopes = [Scope.generation]
         self.description = "Generate an image using the Flux API and save it to a local file."
         self.settings = Settings()
@@ -245,7 +246,7 @@ class FluxBflTool(LightBlueTool):
     def init_tool(self) -> Tool:
         return Tool(
             function=self._flux_generate_image,
-            name="generate_image_with_flux",
+            name=self.name,
             description=self.description,
         )
 
