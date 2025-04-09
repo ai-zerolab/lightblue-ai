@@ -17,6 +17,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
+    "anthropic>=0.49.0",
     "anyio>=4.9.0",
     "httpx>=0.28.1",
     "jinja2>=3.1.6",
@@ -114,7 +115,7 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101", "B015"]
 "lightblue_ai/cli.py" = ["B008"]
-"lightblue_ai/models/*" = ["B", "TRY", "C", "S", "A"]
+"lightblue_ai/models/*" = ["B", "TRY", "C", "S", "A", "SIM", "PGH"]
 
 [tool.ruff.format]
 preview = true
