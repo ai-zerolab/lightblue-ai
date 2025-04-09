@@ -83,7 +83,7 @@ class ScreenshotTool(LightBlueTool):
         )
         if ctx.deps.enabled:
             ctx.deps.add(data)
-            return "File content added to context, please read it from next user message."
+            return "File content added to context, will provided in next user prompt"
         else:
             return data
 

@@ -241,7 +241,7 @@ class TestViewTool:
 
         # Verify the result is a str object and have pending message
         assert isinstance(result, str)
-        assert result == snapshot("File content added to context, please read it from next user message.")
+        assert result == snapshot("File content added to context, will provided in next user prompt")
         pending_data = deps.messages[0]
         assert pending_data.data == mock_binary_content
         assert pending_data.media_type == "image/png"

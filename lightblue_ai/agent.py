@@ -87,7 +87,12 @@ class LightBlueAgent[T]:
         while messages.has_messages():
             mess = messages.model_copy(deep=True)
             messages.clear()
-            result = await self.agent.run(mess, usage=usage, deps=messages)
+            result = await self.agent.run(
+                mess.messages,
+                message_history=result.all_messages(),
+                usage=usage,
+                deps=messages,
+            )
             if usage:
                 usage.incr(result.usage(), requests=1)
 
@@ -134,7 +139,15 @@ class LightBlueAgent[T]:
         while pending_messages.has_messages():
             mess = pending_messages.model_copy(deep=True)
             pending_messages.clear()
-            async with self.agent.iter(mess, usage=usage, deps=pending_messages) as run:
+            async with (
+                self.agent.run_mcp_servers(),
+                self.agent.iter(
+                    mess.messages,
+                    message_history=run.result.all_messages(),
+                    usage=usage,
+                    deps=pending_messages,
+                ) as run,
+            ):
                 yield run
 
             if usage:
