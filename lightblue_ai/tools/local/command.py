@@ -128,11 +128,7 @@ class BashTool(LightBlueTool):
             }
 
     def init_tool(self) -> Tool:
-        return Tool(
-            function=self._bash,
-            name="BASH",
-            description=self.description,
-        )
+        return Tool(function=self._bash, name="BASH", description=self.description, max_retries=3)
 
 
 @hookimpl

@@ -607,11 +607,7 @@ Remember: when making multiple file edits in a row to the same file, you should 
             return f"Successfully edited file: {file_path}"
 
     def init_tool(self) -> Tool:
-        return Tool(
-            function=self._edit,
-            name="Edit",
-            description=self.description,
-        )
+        return Tool(function=self._edit, name="Edit", description=self.description, max_retries=3)
 
 
 class ReplaceTool(LightBlueTool):
@@ -659,11 +655,7 @@ Before using this tool:
             return f"Successfully wrote to file: {file_path}"
 
     def init_tool(self) -> Tool:
-        return Tool(
-            function=self._replace,
-            name="Replace",
-            description=self.description,
-        )
+        return Tool(function=self._replace, name="Replace", description=self.description, max_retries=3)
 
 
 @hookimpl
