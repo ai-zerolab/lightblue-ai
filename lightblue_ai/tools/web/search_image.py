@@ -11,6 +11,7 @@ from lightblue_ai.tools.extensions import hookimpl
 
 class PixabaySearchImageTool(LightBlueTool):
     def __init__(self):
+        self.name = "search_image"
         self.scopes = [Scope.web]
         self.description = """Search images from internet via Pixabay. Use this tool if you need to find images from the internet.
 
@@ -42,7 +43,7 @@ query: A Search term. If omitted, all images are returned. This value may not ex
     def init_tool(self) -> Tool:
         return Tool(
             function=self._search_image,
-            name="search_image",
+            name=self.name,
             description=self.description,
         )
 

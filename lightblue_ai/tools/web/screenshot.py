@@ -64,6 +64,7 @@ class UrlboxAPI:
 
 class ScreenshotTool(LightBlueTool):
     def __init__(self):
+        self.name = "screenshot"
         self.scopes = [Scope.web]
         self.description = "Take screenshot of a web page. For images, you should use the `save_web` tool to download the image then use `view` to view it."
         self.settings = Settings()
@@ -82,7 +83,7 @@ class ScreenshotTool(LightBlueTool):
     def init_tool(self) -> Tool:
         return Tool(
             function=self._screenshot,
-            name="screenshot",
+            name=self.name,
             description=self.description,
         )
 

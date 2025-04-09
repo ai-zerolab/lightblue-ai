@@ -13,6 +13,7 @@ from lightblue_ai.tools.extensions import hookimpl
 
 class GlobTool(LightBlueTool):
     def __init__(self):
+        self.name = "GlobTool"
         self.scopes = [Scope.read]
         self.description = """- Fast file pattern matching tool that works with any codebase size
 - Supports glob patterns like "**/*.js" or "src/**/*.ts"
@@ -45,13 +46,14 @@ class GlobTool(LightBlueTool):
     def init_tool(self) -> Tool:
         return Tool(
             function=self._glob,
-            name="GlobTool",
+            name=self.name,
             description=self.description,
         )
 
 
 class GrepTool(LightBlueTool):
     def __init__(self):
+        self.name = "GrepTool"
         self.scopes = [Scope.read]
         self.description = """- Fast content search tool that works with any codebase size
 - Searches file contents using regular expressions
@@ -137,7 +139,7 @@ class GrepTool(LightBlueTool):
     def init_tool(self) -> Tool:
         return Tool(
             function=self._grep,
-            name="GrepTool",
+            name=self.name,
             description=self.description,
         )
 
@@ -171,6 +173,7 @@ def _get_file_info(path: Path) -> dict[str, Any]:
 
 class ListTool(LightBlueTool):
     def __init__(self):
+        self.name = "LS"
         self.scopes = [Scope.read]
         self.description = "Lists files and directories in a given path. The path parameter must be an absolute path, not a relative path. You should generally prefer the Glob and Grep tools, if you know which directories to search"
 
@@ -325,13 +328,14 @@ class ListTool(LightBlueTool):
     def init_tool(self) -> Tool:
         return Tool(
             function=self._list,
-            name="LS",
+            name=self.name,
             description=self.description,
         )
 
 
 class ViewTool(LightBlueTool):
     def __init__(self):
+        self.name = "View"
         self.scopes = [Scope.read]
         self.description = (
             "Reads a file from the local filesystem. "
@@ -483,13 +487,14 @@ class ViewTool(LightBlueTool):
     def init_tool(self) -> Tool:
         return Tool(
             function=self._view,
-            name="View",
+            name=self.name,
             description=self.description,
         )
 
 
 class EditTool(LightBlueTool):
     def __init__(self):
+        self.name = "Edit"
         self.scopes = [Scope.write]
         self.description = """This is a tool for editing files. For moving or renaming files, you should generally use the Bash tool with the 'mv' command instead. For larger edits, use the Write tool to overwrite files. For Jupyter notebooks (.ipynb files), use the NotebookEditCell instead.
 
@@ -607,11 +612,17 @@ Remember: when making multiple file edits in a row to the same file, you should 
             return f"Successfully edited file: {file_path}"
 
     def init_tool(self) -> Tool:
-        return Tool(function=self._edit, name="Edit", description=self.description, max_retries=3)
+        return Tool(
+            function=self._edit,
+            name=self.name,
+            description=self.description,
+            max_retries=3,
+        )
 
 
 class ReplaceTool(LightBlueTool):
     def __init__(self):
+        self.name = "Replace"
         self.scopes = [Scope.write]
         self.description = """This is a tool for writing a file to the local filesystem. It overwrites the existing file if there is one.
 
@@ -655,7 +666,12 @@ Before using this tool:
             return f"Successfully wrote to file: {file_path}"
 
     def init_tool(self) -> Tool:
-        return Tool(function=self._replace, name="Replace", description=self.description, max_retries=3)
+        return Tool(
+            function=self._replace,
+            name=self.name,
+            description=self.description,
+            max_retries=3,
+        )
 
 
 @hookimpl

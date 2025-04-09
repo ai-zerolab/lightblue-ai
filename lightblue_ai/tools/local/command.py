@@ -14,6 +14,7 @@ from lightblue_ai.tools.extensions import hookimpl
 
 class BashTool(LightBlueTool):
     def __init__(self):
+        self.name = "BASH"
         self.scopes = [Scope.exec]
         self.description = """Executes the given Bash command in a persistent shell session with optional timeout, ensuring appropriate security measures.
 #### **Pre-Execution Checks**
@@ -128,7 +129,7 @@ class BashTool(LightBlueTool):
             }
 
     def init_tool(self) -> Tool:
-        return Tool(function=self._bash, name="BASH", description=self.description, max_retries=3)
+        return Tool(function=self._bash, name=self.name, description=self.description, max_retries=3)
 
 
 @hookimpl

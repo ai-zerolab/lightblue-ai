@@ -11,6 +11,7 @@ from lightblue_ai.tools.extensions import hookimpl
 
 class SaveWebTool(LightBlueTool):
     def __init__(self):
+        self.name = "save_web_to_file"
         self.scopes = [Scope.web]
         self.description = "Downloads files from the web (HTML, images, documents, etc.) and saves them to the specified path. Supports various file types including HTML, PNG, JPEG, PDF, and more."
         self.settings = Settings()
@@ -75,7 +76,7 @@ class SaveWebTool(LightBlueTool):
     def init_tool(self) -> Tool:
         return Tool(
             function=self._save_web,
-            name="save_http_file",
+            name=self.name,
             description=self.description,
         )
 

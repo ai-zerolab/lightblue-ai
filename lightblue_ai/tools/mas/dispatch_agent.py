@@ -9,9 +9,10 @@ from lightblue_ai.tools.manager import LightBlueToolManager
 
 class DispatchAgentTool(LightBlueTool):
     def __init__(self):
+        self.name = "dispatch_agent"
         self.settings = Settings()
         self.scopes = [Scope.exec]
-        self.description = """Launch a new agent that has access to the following tools: GlobTool, GrepTool, LS, View.
+        self.description = """Launch a new agent that has access to the following tools: GlobTool, GrepTool, LS, View and others for searching information.
 
 When you are searching for a keyword or file and are not confident that you will find the right match on the first try, use this tool to perform the search for you. For example:
 
@@ -41,7 +42,7 @@ Usage notes:
 
     def init_tool(self) -> Tool:
         return Tool(
-            name="dispatch_agent",
+            name=self.name,
             function=self._dispatch_agent,
             description=self.description,
         )

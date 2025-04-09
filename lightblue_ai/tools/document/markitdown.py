@@ -12,6 +12,7 @@ class Anything2Markdown(LightBlueTool):
     """To use this tool, you need to install poppler via `brew install poppler`"""
 
     def __init__(self):
+        self.name = "convert_to_markdown"
         self.md = MarkItDown(enable_plugins=True)
         self.scopes = [Scope.read]
         self.description = """MarkItDown is a lightweight Python utility for converting various files to Markdown.
@@ -50,7 +51,7 @@ Use this tool when the file cannot be read with View tool
     def init_tool(self) -> Tool:
         return Tool(
             function=self._anything2markdown,
-            name="convert_to_markdown",
+            name=self.name,
             description=self.description,
         )
 

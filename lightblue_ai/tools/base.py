@@ -22,7 +22,9 @@ class Scope(str, enum.Enum):
 
 
 class LightBlueTool(ABC):
+    name: str
     scopes: list[Scope]
+    description: str
 
     @abstractmethod
     def init_tool(self) -> Tool:
