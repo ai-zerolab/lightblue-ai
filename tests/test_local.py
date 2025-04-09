@@ -1,8 +1,11 @@
 import asyncio
+from dataclasses import dataclass
 from pathlib import Path
+from typing import TypeVar
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
+from inline_snapshot import snapshot
 from pydantic_ai import BinaryContent
 
 from lightblue_ai.tools.local.command import BashTool
@@ -15,6 +18,7 @@ from lightblue_ai.tools.local.files import (
     ViewTool,
     _get_file_info,
 )
+from lightblue_ai.utils import PendingMessage
 
 
 class TestGlobTool:
@@ -188,6 +192,14 @@ class TestListTool:
             assert len(result["entries"]) == 4  # Including hidden file
 
 
+T = TypeVar("T")
+
+
+@dataclass
+class DummyCtx[T]:
+    deps: T
+
+
 class TestViewTool:
     @pytest.fixture
     def view_tool(self):
@@ -201,7 +213,8 @@ class TestViewTool:
         test_file.write_text(mock_file_content)
 
         # Test the _view function with a real file
-        result = await view_tool._view(file_path=str(test_file))
+        ctx = DummyCtx(deps=PendingMessage(enabled=False))
+        result = await view_tool._view(ctx=ctx, file_path=str(test_file))
 
         # Verify the result is the file content
         assert result == mock_file_content
@@ -214,12 +227,24 @@ class TestViewTool:
         test_file.write_bytes(mock_binary_content)
 
         # Test the _view function with a real binary file
-        result = await view_tool._view(file_path=str(test_file))
+        ctx = DummyCtx(deps=PendingMessage(enabled=False))
+        result = await view_tool._view(ctx=ctx, file_path=str(test_file))
 
         # Verify the result is a BinaryContent object
         assert isinstance(result, BinaryContent)
         assert result.data == mock_binary_content
         assert result.media_type == "image/png"
+
+        deps = PendingMessage(enabled=True)
+        ctx = DummyCtx(deps=deps)
+        result = await view_tool._view(ctx=ctx, file_path=str(test_file))
+
+        # Verify the result is a str object and have pending message
+        assert isinstance(result, str)
+        assert result == snapshot("File content added to context, please read it from next user message.")
+        pending_data = deps.messages[0]
+        assert pending_data.data == mock_binary_content
+        assert pending_data.media_type == "image/png"
 
 
 class TestEditTool:
