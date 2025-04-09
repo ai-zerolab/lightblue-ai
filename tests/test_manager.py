@@ -47,3 +47,8 @@ def test_manager():
     assert write_tools.issubset({i.name for i in manager.get_write_tools()})
     assert exec_tools.issubset({i.name for i in manager.get_exec_tools()})
     assert generation_tools.issubset({i.name for i in manager.get_generation_tools()})
+
+    # Ensure all tools have name, description
+    for tool in manager.get_all_tools():
+        assert tool.name is not None
+        assert tool.description is not None
