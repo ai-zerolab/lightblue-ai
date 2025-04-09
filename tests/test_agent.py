@@ -24,7 +24,7 @@ async def test_agent():
 
     (await agent.run("Hello, world!")).data == snapshot(
         """\
-thinking, ('Use the tool to think about something. It will not obtain new information or change the database, but just append the thought to the log. Use it when complex reasoning or some cache memory is needed.',), {'additionalProperties': False, 'properties': {'thought': {'description': 'A thought to think about.', 'type': 'string'}}, 'required': ['thought'], 'type': 'object'}
+thinking, Use the tool to think about something. It will not obtain new information or change the database, but just append the thought to the log. Use it when complex reasoning or some cache memory is needed., {'additionalProperties': False, 'properties': {'thought': {'description': 'A thought to think about.', 'type': 'string'}}, 'required': ['thought'], 'type': 'object'}
 
 BASH, Executes the given Bash command in a persistent shell session with optional timeout, ensuring appropriate security measures.
 #### **Pre-Execution Checks**
