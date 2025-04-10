@@ -340,6 +340,15 @@ class TestReplaceTool:
             mock_file.write.assert_called_once_with("New file content")
 
 
+class MockProcess:
+    def __init__(self, stdout=b"", stderr=b"", returncode=0):
+        self.stdout = stdout
+        self.stderr = stderr
+        self.returncode = returncode
+        self.communicate = AsyncMock(return_value=(stdout, stderr))
+        self.kill = MagicMock()
+
+
 class TestBashTool:
     @pytest.fixture
     def bash_tool(self):
@@ -348,10 +357,7 @@ class TestBashTool:
     @pytest.mark.asyncio
     async def test_bash_command_execution(self, bash_tool):
         # Mock asyncio.create_subprocess_exec
-        mock_process = AsyncMock()
-        mock_process.communicate.return_value = (b"stdout output", b"stderr output")
-        mock_process.returncode = 0
-
+        mock_process = MockProcess(stdout=b"stdout output", stderr=b"stderr output", returncode=0)
         with patch("asyncio.create_subprocess_exec", return_value=mock_process) as mock_exec:
             # Test the _bash function
             result = await bash_tool._bash(command=["echo", "hello"], timeout_seconds=10)
@@ -369,9 +375,8 @@ class TestBashTool:
     @pytest.mark.asyncio
     async def test_bash_timeout(self, bash_tool):
         # Mock asyncio.create_subprocess_exec
-        mock_process = AsyncMock()
-        mock_process.communicate.side_effect = asyncio.TimeoutError()
-
+        mock_process = MockProcess()
+        mock_process.communicate = AsyncMock(side_effect=asyncio.TimeoutError())
         with patch("asyncio.create_subprocess_exec", return_value=mock_process) as mock_exec:
             # Test the _bash function with a timeout
             result = await bash_tool._bash(command=["sleep", "100"], timeout_seconds=1)
