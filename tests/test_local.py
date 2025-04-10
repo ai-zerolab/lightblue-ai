@@ -1,8 +1,11 @@
 import asyncio
+from dataclasses import dataclass
 from pathlib import Path
+from typing import TypeVar
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
+from inline_snapshot import snapshot
 from pydantic_ai import BinaryContent
 
 from lightblue_ai.tools.local.command import BashTool
@@ -15,6 +18,7 @@ from lightblue_ai.tools.local.files import (
     ViewTool,
     _get_file_info,
 )
+from lightblue_ai.utils import PendingMessage
 
 
 class TestGlobTool:
@@ -188,6 +192,14 @@ class TestListTool:
             assert len(result["entries"]) == 4  # Including hidden file
 
 
+T = TypeVar("T")
+
+
+@dataclass
+class DummyCtx[T]:
+    deps: T
+
+
 class TestViewTool:
     @pytest.fixture
     def view_tool(self):
@@ -201,7 +213,8 @@ class TestViewTool:
         test_file.write_text(mock_file_content)
 
         # Test the _view function with a real file
-        result = await view_tool._view(file_path=str(test_file))
+        ctx = DummyCtx(deps=PendingMessage(enabled=False))
+        result = await view_tool._view(ctx=ctx, file_path=str(test_file))
 
         # Verify the result is the file content
         assert result == mock_file_content
@@ -214,12 +227,24 @@ class TestViewTool:
         test_file.write_bytes(mock_binary_content)
 
         # Test the _view function with a real binary file
-        result = await view_tool._view(file_path=str(test_file))
+        ctx = DummyCtx(deps=PendingMessage(enabled=False))
+        result = await view_tool._view(ctx=ctx, file_path=str(test_file))
 
         # Verify the result is a BinaryContent object
         assert isinstance(result, BinaryContent)
         assert result.data == mock_binary_content
         assert result.media_type == "image/png"
+
+        deps = PendingMessage(enabled=True)
+        ctx = DummyCtx(deps=deps)
+        result = await view_tool._view(ctx=ctx, file_path=str(test_file))
+
+        # Verify the result is a str object and have pending message
+        assert isinstance(result, str)
+        assert result == snapshot("File content added to context, will provided in next user prompt")
+        pending_data = deps.messages[0]
+        assert pending_data.data == mock_binary_content
+        assert pending_data.media_type == "image/png"
 
 
 class TestEditTool:
@@ -315,6 +340,15 @@ class TestReplaceTool:
             mock_file.write.assert_called_once_with("New file content")
 
 
+class MockProcess:
+    def __init__(self, stdout=b"", stderr=b"", returncode=0):
+        self.stdout = stdout
+        self.stderr = stderr
+        self.returncode = returncode
+        self.communicate = AsyncMock(return_value=(stdout, stderr))
+        self.kill = MagicMock()
+
+
 class TestBashTool:
     @pytest.fixture
     def bash_tool(self):
@@ -323,10 +357,7 @@ class TestBashTool:
     @pytest.mark.asyncio
     async def test_bash_command_execution(self, bash_tool):
         # Mock asyncio.create_subprocess_exec
-        mock_process = AsyncMock()
-        mock_process.communicate.return_value = (b"stdout output", b"stderr output")
-        mock_process.returncode = 0
-
+        mock_process = MockProcess(stdout=b"stdout output", stderr=b"stderr output", returncode=0)
         with patch("asyncio.create_subprocess_exec", return_value=mock_process) as mock_exec:
             # Test the _bash function
             result = await bash_tool._bash(command=["echo", "hello"], timeout_seconds=10)
@@ -344,9 +375,8 @@ class TestBashTool:
     @pytest.mark.asyncio
     async def test_bash_timeout(self, bash_tool):
         # Mock asyncio.create_subprocess_exec
-        mock_process = AsyncMock()
-        mock_process.communicate.side_effect = asyncio.TimeoutError()
-
+        mock_process = MockProcess()
+        mock_process.communicate = AsyncMock(side_effect=asyncio.TimeoutError())
         with patch("asyncio.create_subprocess_exec", return_value=mock_process) as mock_exec:
             # Test the _bash function with a timeout
             result = await bash_tool._bash(command=["sleep", "100"], timeout_seconds=1)

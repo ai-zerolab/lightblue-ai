@@ -11,9 +11,10 @@ def infer_model(model: str | Model):
     if not isinstance(model, str):
         return legacy_infer_model(model)
 
-    if "bedrock:" in model:
+    if model.startswith("bedrock:"):
         return PatchedBedrockConverseModel(model.lstrip("bedrock:"))
 
-    if "anthropic:" in model:
+    if model.startswith("anthropic:"):
         return PatchedAnthropicModel(model.lstrip("anthropic:"))
+
     return legacy_infer_model(model)

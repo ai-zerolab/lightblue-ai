@@ -4,11 +4,12 @@ from pathlib import Path
 from typing import Annotated, Any
 
 from pydantic import Field
-from pydantic_ai import BinaryContent, Tool
+from pydantic_ai import BinaryContent, RunContext, Tool
 
 from lightblue_ai.log import logger
 from lightblue_ai.tools.base import LightBlueTool, Scope
 from lightblue_ai.tools.extensions import hookimpl
+from lightblue_ai.utils import PendingMessage
 
 
 class GlobTool(LightBlueTool):
@@ -344,12 +345,13 @@ class ViewTool(LightBlueTool):
             "You can optionally specify a line offset and limit (especially handy for long files), "
             "but it's recommended to read the whole file by not providing these parameters. "
             "Any lines longer than 2000 characters will be truncated. "
-            "For image files, the tool will display the image for you. "
+            "For image files, the tool will display the image for you. If you cannot read image via tool, will display in next user prompt, please do not reply at this point, just wait for the next prompt. "
             "For very large PDF files, you need to use the PDF2Images tool to convert them into multiple images and read the images to understand the PDF."
         )
 
     async def _view(  # noqa: C901
         self,
+        ctx: RunContext[PendingMessage],
         file_path: Annotated[str, Field(description="Absolute path to the file to read")],
         line_offset: Annotated[
             int | None,
@@ -416,7 +418,12 @@ class ViewTool(LightBlueTool):
                 # Return binary content for binary files
                 with path.open("rb") as f:
                     content = f.read()
-                return BinaryContent(data=content, media_type=self._get_mime_type(path))
+                data = BinaryContent(data=content, media_type=self._get_mime_type(path))
+                if ctx.deps.enabled:
+                    ctx.deps.add(data)
+                    return "File content added to context, will provided in next user prompt"
+                else:
+                    return data
 
             # Read text file
             with path.open("r", encoding="utf-8", errors="replace") as f:

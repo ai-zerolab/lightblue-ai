@@ -13,9 +13,7 @@ class ThinkingTool(LightBlueTool):
     def __init__(self):
         self.name = "thinking"
         self.scopes = [Scope.read]
-        self.description = (
-            "Use the tool to think about something. It will not obtain new information or change the database, but just append the thought to the log. Use it when complex reasoning or some cache memory is needed.",
-        )
+        self.description = "Use the tool to think about something. It will not obtain new information or change the database, but just append the thought to the log. Use it when complex reasoning or some cache memory is needed."
 
     async def _think(
         self,
