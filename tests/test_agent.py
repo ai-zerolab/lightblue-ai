@@ -167,26 +167,12 @@ Use this tool when the file cannot be read with View tool
 
 convert_pdf_to_images, Converts a PDF file to multiple PNG image files. The file_path parameter must be an absolute path to a PDF file. The output_path parameter is optional and will default to the same directory as the input file if not provided.For PDF file, try convert_to_markdown tool first. For using this tool, you should to use View tool to view the images., {'additionalProperties': False, 'properties': {'file_path': {'description': 'Absolute path to the PDF file to convert', 'type': 'string'}, 'output_path': {'anyOf': [{'type': 'string'}, {'type': 'null'}], 'description': 'Optional. Absolute path to the directory to save the images. If not provided, the images will be saved in the same directory as the PDF file.'}}, 'required': ['file_path', 'output_path'], 'type': 'object'}
 
-search_with_tavily, Performs web searches using Tavily.
-If the initial query is too broad or results are not ideal, the LLM can refine the search by progressively reducing keywords to improve accuracy.
-Useful for retrieving up-to-date information, specific data, or detailed background research.
-, {'additionalProperties': False, 'properties': {'query': {'description': 'The search query', 'type': 'string'}, 'search_deep': {'default': 'basic', 'description': 'The search depth', 'enum': ['basic', 'advanced'], 'type': 'string'}, 'topic': {'default': 'general', 'description': 'The topic', 'enum': ['general', 'news'], 'type': 'string'}, 'time_range': {'anyOf': [{'enum': ['day', 'week', 'month', 'year', 'd', 'w', 'm', 'y'], 'type': 'string'}, {'type': 'null'}], 'default': None, 'description': 'The time range'}}, 'required': ['query'], 'type': 'object'}
-
-screenshot, Take screenshot of a web page. For images, you should use the `save_web` tool to download the image then use `view` to view it., {'additionalProperties': False, 'properties': {'url': {'description': 'URL of the web page to take a screenshot of', 'type': 'string'}}, 'required': ['url'], 'type': 'object'}
-
-search_image, Search images from internet via Pixabay. Use this tool if you need to find images from the internet.
-
-query: A Search term. If omitted, all images are returned. This value may not exceed 100 characters. Example: "yellow+flower"
-, {'additionalProperties': False, 'properties': {'query': {'description': 'The search query', 'type': 'string'}}, 'required': ['query'], 'type': 'object'}
-
 save_web_to_file, Downloads files from the web (HTML, images, documents, etc.) and saves them to the specified path. Supports various file types including HTML, PNG, JPEG, PDF, and more., {'additionalProperties': False, 'properties': {'url': {'description': 'URL of the web resource to download', 'type': 'string'}, 'save_path': {'description': 'Path where the file should be saved', 'type': 'string'}}, 'required': ['url', 'save_path'], 'type': 'object'}
-
-generate_image_with_flux, Generate an image using the Flux API and save it to a local file., {'additionalProperties': False, 'properties': {'prompt': {'description': 'The text prompt for image generation', 'type': 'string'}, 'output_dir': {'description': 'The directory to save the image', 'type': 'string'}, 'model_name': {'default': 'flux.1.1-pro', 'description': 'The model version to use', 'type': 'string'}, 'width': {'anyOf': [{'type': 'integer'}, {'type': 'null'}], 'default': None, 'description': 'Width of the image in pixels'}, 'height': {'anyOf': [{'type': 'integer'}, {'type': 'null'}], 'default': None, 'description': 'Height of the image in pixels'}, 'seed': {'anyOf': [{'type': 'integer'}, {'type': 'null'}], 'default': None, 'description': 'Seed for reproducibility'}}, 'required': ['prompt', 'output_dir'], 'type': 'object'}
 
 dispatch_agent, Launch a new agent that has access to the following tools: GlobTool, GrepTool, LS, View and others for searching information.
 
 Use this tool when you need to browse images. Place the image in the attatchments parameter.
-        \n\
+
 When you are searching for a keyword or file and are not confident that you will find the right match on the first try, use this tool to perform the search for you. For example:
 
 - If you are searching for a keyword like "config" or "logger", this tool is appropriate.
