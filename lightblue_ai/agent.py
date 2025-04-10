@@ -51,11 +51,13 @@ class LightBlueAgent[T]:
         logger.info(f"Using model: {model_name}")
         if "anthropic" not in model_name and not isinstance(model, FunctionModel):
             max_description_length = max_description_length or 1000
-            self.enable_multi_turn = True
+            self.enable_multi_turn = self.settings.enable_multi_turn
+            self.tool_return_data = False
             logger.info(f"Enabling multi-turn mode, current max description length: {max_description_length}")
         else:
             max_description_length = None
-            self.enable_multi_turn = False
+            self.enable_multi_turn = self.settings.enable_multi_turn
+            self.tool_return_data = True
             logger.info("Disabling multi-turn mode")
 
         self.tool_manager = LightBlueToolManager(max_description_length=max_description_length)
@@ -78,7 +80,7 @@ class LightBlueAgent[T]:
         message_history: None | list[ModelMessage] = None,
         usage: None | Usage = None,
     ) -> AgentRunResult[T]:
-        messages = PendingMessage(enabled=self.enable_multi_turn)
+        messages = PendingMessage(multi_turn=self.enable_multi_turn, tool_return_data=self.tool_return_data)
         async with self.agent.run_mcp_servers():
             result = await self.agent.run(user_prompt, message_history=message_history, deps=messages)
         if usage:
@@ -111,7 +113,7 @@ class LightBlueAgent[T]:
             self.agent.iter(
                 user_prompt,
                 message_history=message_history,
-                deps=PendingMessage(enabled=self.enable_multi_turn),
+                deps=PendingMessage(multi_turn=self.enable_multi_turn, tool_return_data=self.tool_return_data),
             ) as run,
         ):
             yield run
@@ -125,33 +127,33 @@ class LightBlueAgent[T]:
         message_history: None | list[ModelMessage] = None,
         usage: None | Usage = None,
     ) -> AsyncIterator[AgentRun]:
-        pending_messages = PendingMessage(enabled=self.enable_multi_turn)
+        pending_messages = PendingMessage(multi_turn=self.enable_multi_turn, tool_return_data=self.tool_return_data)
 
         async with (
             self.agent.run_mcp_servers(),
-            self.agent.iter(user_prompts, message_history=message_history, deps=pending_messages) as run,
         ):
-            yield run
-
-        if usage:
-            usage.incr(run.usage(), requests=1)
-
-        while pending_messages.has_messages():
-            mess = pending_messages.model_copy(deep=True)
-            pending_messages.clear()
-            async with (
-                self.agent.run_mcp_servers(),
-                self.agent.iter(
-                    mess.messages,
-                    message_history=run.result.all_messages(),
-                    usage=usage,
-                    deps=pending_messages,
-                ) as run,
-            ):
+            async with self.agent.iter(user_prompts, message_history=message_history, deps=pending_messages) as run:
                 yield run
 
             if usage:
                 usage.incr(run.usage(), requests=1)
+
+            while pending_messages.has_messages():
+                mess = pending_messages.model_copy(deep=True)
+                pending_messages.clear()
+                async with (
+                    self.agent.run_mcp_servers(),
+                    self.agent.iter(
+                        mess.messages,
+                        message_history=run.result.all_messages(),
+                        usage=usage,
+                        deps=pending_messages,
+                    ) as run,
+                ):
+                    yield run
+
+                if usage:
+                    usage.incr(run.usage(), requests=1)
 
     async def yield_response_event(self, run: AgentRun) -> AsyncIterator[HandleResponseEvent | AgentStreamEvent]:
         """

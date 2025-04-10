@@ -81,7 +81,7 @@ class ScreenshotTool(LightBlueTool):
             data=await self.urlbox._get_screenshot(url),
             media_type="image/png",
         )
-        if ctx.deps.enabled:
+        if ctx.deps.multi_turn:
             ctx.deps.add(data)
             return "File content added to context, will provided in next user prompt"
         else:

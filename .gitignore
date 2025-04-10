@@ -142,3 +142,4 @@ mcp.json
 prompt.md
 all_messages.json
 .DS_Store
+tmp/

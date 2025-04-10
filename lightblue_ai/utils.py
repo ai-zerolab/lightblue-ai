@@ -18,7 +18,8 @@ def format_part(part: ModelResponsePart | ModelRequestPart) -> str:
 
 
 class PendingMessage(BaseModel):
-    enabled: bool
+    multi_turn: bool
+    tool_return_data: bool
     messages: list[BinaryContent] = []
 
     def add(self, message: BinaryContent):

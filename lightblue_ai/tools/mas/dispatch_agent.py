@@ -1,18 +1,25 @@
-from pydantic_ai import Agent, Tool
+from pathlib import Path
+from typing import Annotated
+
+from pydantic import Field
+from pydantic_ai import Agent, BinaryContent, Tool
 
 from lightblue_ai.models import infer_model
 from lightblue_ai.settings import Settings
 from lightblue_ai.tools.base import LightBlueTool, Scope
 from lightblue_ai.tools.extensions import hookimpl
+from lightblue_ai.tools.local.media_mixin import MediaMixin
 from lightblue_ai.tools.manager import LightBlueToolManager
 
 
-class DispatchAgentTool(LightBlueTool):
+class DispatchAgentTool(LightBlueTool, MediaMixin):
     def __init__(self):
         self.name = "dispatch_agent"
         self.settings = Settings()
         self.scopes = [Scope.exec]
         self.description = """Launch a new agent that has access to the following tools: GlobTool, GrepTool, LS, View and others for searching information.
+
+Use this tool when you need to browse images. Place the image in the attatchments parameter.
 
 When you are searching for a keyword or file and are not confident that you will find the right match on the first try, use this tool to perform the search for you. For example:
 
@@ -29,7 +36,18 @@ Usage notes:
 5. IMPORTANT: The agent cannot use Bash, Replace, Edit, so it cannot modify files. If you need to use these tools, use them directly instead of going through the agent.
 """
 
-    async def _dispatch_agent(self, system_prompt: str, objective: str) -> str:
+    async def _dispatch_agent(
+        self,
+        system_prompt: Annotated[str, Field(description="System prompt for the agent.")],
+        objective: Annotated[str, Field(description="The objective to achieve.")],
+        attatchments: Annotated[
+            list[str] | None,
+            Field(
+                default=None,
+                description="A list of file paths to attach to the agent.",
+            ),
+        ] = None,
+    ) -> str:
         tools = LightBlueToolManager().get_read_tools()
 
         self.agent = Agent(
@@ -38,7 +56,22 @@ Usage notes:
             tools=tools,
         )
 
-        return await self.agent.run(objective)
+        attatchments = [
+            Path(a).expanduser().resolve().absolute()
+            for a in attatchments or []
+            if Path(a).exists() and Path(a).is_file()
+        ]
+
+        attatchment_data = []
+        for path in attatchments:
+            if path.suffix.lower() in self.binary_extensions:
+                # Return binary content for binary files
+                with path.open("rb") as f:
+                    content = f.read()
+                data = BinaryContent(data=content, media_type=self._get_mime_type(path))
+                attatchment_data.append(data)
+
+        return (await self.agent.run([objective, *attatchment_data])).data
 
     def init_tool(self) -> Tool:
         return Tool(
