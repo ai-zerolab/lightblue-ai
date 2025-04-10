@@ -140,7 +140,6 @@ class LightBlueToolManager:
 
     @might_truncate
     def get_sub_agent_tools(self) -> list[Tool]:
-        """read&web tools"""
         return [i.init_tool() for i in self._registed_instance if i.is_read_tool() or i.is_web_tool()]
 
     @might_truncate

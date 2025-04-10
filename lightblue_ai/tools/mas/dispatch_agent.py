@@ -4,6 +4,7 @@ from typing import Annotated
 from pydantic import Field
 from pydantic_ai import Agent, BinaryContent, Tool
 
+from lightblue_ai.log import logger
 from lightblue_ai.models import infer_model
 from lightblue_ai.settings import Settings
 from lightblue_ai.tools.base import LightBlueTool, Scope
@@ -19,8 +20,6 @@ class DispatchAgentTool(LightBlueTool, MediaMixin):
         self.scopes = [Scope.exec]
         self.manager = manager
         self.description = """Launch a new agent that has access to the following tools: GlobTool, GrepTool, LS, View and others for searching information.
-
-Use this tool when you need to browse images. Place the image in the attatchments parameter.
 
 When you are searching for a keyword or file and are not confident that you will find the right match on the first try, use this tool to perform the search for you. For example:
 
@@ -49,7 +48,7 @@ Usage notes:
             ),
         ] = None,
     ) -> str:
-        tools = self.manager.get_read_tools()
+        tools = self.manager.get_sub_agent_tools()
 
         self.agent = Agent(
             infer_model(self.settings.sub_agent_model or self.settings.default_model),
@@ -71,7 +70,7 @@ Usage notes:
                     content = f.read()
                 data = BinaryContent(data=content, media_type=self._get_mime_type(path))
                 attatchment_data.append(data)
-
+                logger.info(f"{path} attatchment added")
         return (await self.agent.run([objective, *attatchment_data])).data
 
     def init_tool(self) -> Tool:

@@ -87,20 +87,20 @@ class LightBlueAgent[T]:
         messages = PendingMessage(multi_turn=self.enable_multi_turn, tool_return_data=self.tool_return_data)
         async with self.agent.run_mcp_servers():
             result = await self.agent.run(user_prompt, message_history=message_history, deps=messages)
-        if usage:
-            usage.incr(result.usage(), requests=1)
-
-        while messages.has_messages():
-            mess = messages.model_copy(deep=True)
-            messages.clear()
-            result = await self.agent.run(
-                mess.messages,
-                message_history=result.all_messages(),
-                usage=usage,
-                deps=messages,
-            )
             if usage:
                 usage.incr(result.usage(), requests=1)
+
+            while messages.has_messages():
+                mess = messages.model_copy(deep=True)
+                messages.clear()
+                result = await self.agent.run(
+                    ["File attachment", *mess.messages],
+                    message_history=result.all_messages(),
+                    usage=usage,
+                    deps=messages,
+                )
+                if usage:
+                    usage.incr(result.usage(), requests=1)
 
         return result
 
@@ -147,7 +147,7 @@ class LightBlueAgent[T]:
                 pending_messages.clear()
                 async with (
                     self.agent.iter(
-                        mess.messages,
+                        ["File attachment", *mess.messages],
                         message_history=run.result.all_messages(),
                         usage=usage,
                         deps=pending_messages,

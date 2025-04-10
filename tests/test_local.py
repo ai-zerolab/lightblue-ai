@@ -252,7 +252,9 @@ class TestViewTool:
 
         # Verify the result is a str object and have pending message
         assert isinstance(result, str)
-        assert result == snapshot("Use `dispatch_agent` tool to read binary files.")
+        assert result == snapshot(
+            "Use `dispatch_agent` tool to read binary files. Place the file in `attatchments` field of `dispatch_agent` tool."
+        )
 
 
 class TestEditTool:

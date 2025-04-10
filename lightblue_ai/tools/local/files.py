@@ -394,7 +394,7 @@ class ViewTool(LightBlueTool, MediaMixin):
                 if ctx.deps.tool_return_data:
                     return data
                 else:
-                    return "Use `dispatch_agent` tool to read binary files."
+                    return "Use `dispatch_agent` tool to read binary files. Place the file in `attatchments` field of `dispatch_agent` tool."
 
             # Read text file
             with path.open("r", encoding="utf-8", errors="replace") as f:
