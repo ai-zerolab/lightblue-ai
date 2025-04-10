@@ -131,29 +131,29 @@ class LightBlueAgent[T]:
 
         async with (
             self.agent.run_mcp_servers(),
-            self.agent.iter(user_prompts, message_history=message_history, deps=pending_messages) as run,
         ):
-            yield run
-
-        if usage:
-            usage.incr(run.usage(), requests=1)
-
-        while pending_messages.has_messages():
-            mess = pending_messages.model_copy(deep=True)
-            pending_messages.clear()
-            async with (
-                self.agent.run_mcp_servers(),
-                self.agent.iter(
-                    mess.messages,
-                    message_history=run.result.all_messages(),
-                    usage=usage,
-                    deps=pending_messages,
-                ) as run,
-            ):
+            async with self.agent.iter(user_prompts, message_history=message_history, deps=pending_messages) as run:
                 yield run
 
             if usage:
                 usage.incr(run.usage(), requests=1)
+
+            while pending_messages.has_messages():
+                mess = pending_messages.model_copy(deep=True)
+                pending_messages.clear()
+                async with (
+                    self.agent.run_mcp_servers(),
+                    self.agent.iter(
+                        mess.messages,
+                        message_history=run.result.all_messages(),
+                        usage=usage,
+                        deps=pending_messages,
+                    ) as run,
+                ):
+                    yield run
+
+                if usage:
+                    usage.incr(run.usage(), requests=1)
 
     async def yield_response_event(self, run: AgentRun) -> AsyncIterator[HandleResponseEvent | AgentStreamEvent]:
         """
