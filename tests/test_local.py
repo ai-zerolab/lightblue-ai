@@ -213,7 +213,7 @@ class TestViewTool:
         test_file.write_text(mock_file_content)
 
         # Test the _view function with a real file
-        ctx = DummyCtx(deps=PendingMessage(enabled=False))
+        ctx = DummyCtx(deps=PendingMessage(multi_turn=False, tool_return_data=True))
         result = await view_tool._view(ctx=ctx, file_path=str(test_file))
 
         # Verify the result is the file content
@@ -227,7 +227,7 @@ class TestViewTool:
         test_file.write_bytes(mock_binary_content)
 
         # Test the _view function with a real binary file
-        ctx = DummyCtx(deps=PendingMessage(enabled=False))
+        ctx = DummyCtx(deps=PendingMessage(multi_turn=False, tool_return_data=True))
         result = await view_tool._view(ctx=ctx, file_path=str(test_file))
 
         # Verify the result is a BinaryContent object
@@ -235,7 +235,7 @@ class TestViewTool:
         assert result.data == mock_binary_content
         assert result.media_type == "image/png"
 
-        deps = PendingMessage(enabled=True)
+        deps = PendingMessage(multi_turn=True, tool_return_data=True)
         ctx = DummyCtx(deps=deps)
         result = await view_tool._view(ctx=ctx, file_path=str(test_file))
 
@@ -245,6 +245,14 @@ class TestViewTool:
         pending_data = deps.messages[0]
         assert pending_data.data == mock_binary_content
         assert pending_data.media_type == "image/png"
+
+        deps = PendingMessage(multi_turn=False, tool_return_data=False)
+        ctx = DummyCtx(deps=deps)
+        result = await view_tool._view(ctx=ctx, file_path=str(test_file))
+
+        # Verify the result is a str object and have pending message
+        assert isinstance(result, str)
+        assert result == snapshot("Use `dispatch_agent` tool to read binary files.")
 
 
 class TestEditTool:

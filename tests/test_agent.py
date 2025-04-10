@@ -185,6 +185,8 @@ generate_image_with_flux, Generate an image using the Flux API and save it to a 
 
 dispatch_agent, Launch a new agent that has access to the following tools: GlobTool, GrepTool, LS, View and others for searching information.
 
+Use this tool when you need to browse images. Place the image in the attatchments parameter.
+        \n\
 When you are searching for a keyword or file and are not confident that you will find the right match on the first try, use this tool to perform the search for you. For example:
 
 - If you are searching for a keyword like "config" or "logger", this tool is appropriate.
@@ -198,7 +200,7 @@ Usage notes:
 3. Each agent invocation is stateless. You will not be able to send additional messages to the agent, nor will the agent be able to communicate with you outside of its final report. Therefore, your prompt should contain a highly detailed task description for the agent to perform autonomously, and you should specify exactly what information the agent should return in its final and only message to you.
 4. The agent's outputs should generally be trusted.
 5. IMPORTANT: The agent cannot use Bash, Replace, Edit, so it cannot modify files. If you need to use these tools, use them directly instead of going through the agent.
-, {'additionalProperties': False, 'properties': {'system_prompt': {'type': 'string'}, 'objective': {'type': 'string'}}, 'required': ['system_prompt', 'objective'], 'type': 'object'}
+, {'additionalProperties': False, 'properties': {'system_prompt': {'description': 'System prompt for the agent.', 'type': 'string'}, 'objective': {'description': 'The objective to achieve.', 'type': 'string'}, 'attatchments': {'anyOf': [{'items': {'type': 'string'}, 'type': 'array'}, {'type': 'null'}], 'default': None, 'description': 'A list of file paths to attach to the agent.'}}, 'required': ['system_prompt', 'objective'], 'type': 'object'}
 
 celsius_to_fahrenheit, Convert Celsius to Fahrenheit.
 

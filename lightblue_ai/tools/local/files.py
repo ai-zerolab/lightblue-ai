@@ -9,6 +9,7 @@ from pydantic_ai import BinaryContent, RunContext, Tool
 from lightblue_ai.log import logger
 from lightblue_ai.tools.base import LightBlueTool, Scope
 from lightblue_ai.tools.extensions import hookimpl
+from lightblue_ai.tools.local.media_mixin import MediaMixin
 from lightblue_ai.utils import PendingMessage
 
 
@@ -334,7 +335,7 @@ class ListTool(LightBlueTool):
         )
 
 
-class ViewTool(LightBlueTool):
+class ViewTool(LightBlueTool, MediaMixin):
     def __init__(self):
         self.name = "View"
         self.scopes = [Scope.read]
@@ -382,48 +383,18 @@ class ViewTool(LightBlueTool):
                 return f"Error: Path is a directory, not a file: {file_path}"
 
             # Check if the file is likely binary based on extension
-            binary_extensions = {
-                ".jpg",
-                ".jpeg",
-                ".png",
-                ".gif",
-                ".bmp",
-                ".ico",
-                ".webp",  # Images
-                ".pdf",
-                ".doc",
-                ".docx",
-                ".xls",
-                ".xlsx",
-                ".ppt",
-                ".pptx",  # Documents
-                ".zip",
-                ".tar",
-                ".gz",
-                ".rar",
-                ".7z",  # Archives
-                ".exe",
-                ".dll",
-                ".so",
-                ".dylib",  # Executables
-                ".mp3",
-                ".mp4",
-                ".avi",
-                ".mov",
-                ".flv",
-                ".wav",  # Media
-            }
-
-            if path.suffix.lower() in binary_extensions:
+            if path.suffix.lower() in self.binary_extensions:
                 # Return binary content for binary files
                 with path.open("rb") as f:
                     content = f.read()
                 data = BinaryContent(data=content, media_type=self._get_mime_type(path))
-                if ctx.deps.enabled:
+                if ctx.deps.multi_turn:
                     ctx.deps.add(data)
                     return "File content added to context, will provided in next user prompt"
-                else:
+                if ctx.deps.tool_return_data:
                     return data
+                else:
+                    return "Use `dispatch_agent` tool to read binary files."
 
             # Read text file
             with path.open("r", encoding="utf-8", errors="replace") as f:
@@ -450,46 +421,6 @@ class ViewTool(LightBlueTool):
 
         except Exception as e:
             return f"Error reading file: {e!s}"
-
-    def _get_mime_type(self, path: Path) -> str:
-        """Get the MIME type for a file based on its extension.
-
-        Args:
-            path: Path to the file
-
-        Returns:
-            MIME type string
-        """
-        extension_to_mime = {
-            ".jpg": "image/jpeg",
-            ".jpeg": "image/jpeg",
-            ".png": "image/png",
-            ".gif": "image/gif",
-            ".bmp": "image/bmp",
-            ".ico": "image/x-icon",
-            ".webp": "image/webp",
-            ".pdf": "application/pdf",
-            ".doc": "application/msword",
-            ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            ".xls": "application/vnd.ms-excel",
-            ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            ".ppt": "application/vnd.ms-powerpoint",
-            ".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-            ".zip": "application/zip",
-            ".tar": "application/x-tar",
-            ".gz": "application/gzip",
-            ".rar": "application/vnd.rar",
-            ".7z": "application/x-7z-compressed",
-            ".mp3": "audio/mpeg",
-            ".mp4": "video/mp4",
-            ".avi": "video/x-msvideo",
-            ".mov": "video/quicktime",
-            ".flv": "video/x-flv",
-            ".wav": "audio/wav",
-        }
-
-        suffix = path.suffix.lower()
-        return extension_to_mime.get(suffix, "application/octet-stream")
 
     def init_tool(self) -> Tool:
         return Tool(
