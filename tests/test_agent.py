@@ -169,7 +169,7 @@ convert_pdf_to_images, Converts a PDF file to multiple PNG image files. The file
 
 save_web_to_file, Downloads files from the web (HTML, images, documents, etc.) and saves them to the specified path. Supports various file types including HTML, PNG, JPEG, PDF, and more., {'additionalProperties': False, 'properties': {'url': {'description': 'URL of the web resource to download', 'type': 'string'}, 'save_path': {'description': 'Path where the file should be saved', 'type': 'string'}}, 'required': ['url', 'save_path'], 'type': 'object'}
 
-dispatch_agent, Launch a new agent that has access to the following tools: GlobTool, GrepTool, LS, View, Replace, Edit, and others for searching information.
+dispatch_agent, Launch a new agent that has access to the following tools: GlobTool, GrepTool, LS, View and others for searching information.
 
 When you are searching for a keyword or file and are not confident that you will find the right match on the first try, use this tool to perform the search for you. For example:
 
