@@ -49,14 +49,15 @@ class LightBlueAgent[T]:
             raise ValueError("model or ENV `DEFAULT_MODEL` must be set")
         model_name = model.model_name if isinstance(model, Model) else model
         logger.info(f"Using model: {model_name}")
+
+        self.enable_multi_turn = self.settings.enable_multi_turn
+        logger.info(f"multi-turn mode: {self.settings.enable_multi_turn}")
         if "anthropic" not in model_name and not isinstance(model, FunctionModel):
             max_description_length = max_description_length or 1000
-            self.enable_multi_turn = self.settings.enable_multi_turn
             self.tool_return_data = False
-            logger.info(f"Enabling multi-turn mode, current max description length: {max_description_length}")
+            logger.info(f"multi-turn mode, current max description length: {max_description_length}")
         else:
             max_description_length = None
-            self.enable_multi_turn = self.settings.enable_multi_turn
             self.tool_return_data = True
             logger.info("Disabling multi-turn mode")
 
