@@ -13,10 +13,11 @@ from lightblue_ai.tools.manager import LightBlueToolManager
 
 
 class DispatchAgentTool(LightBlueTool, MediaMixin):
-    def __init__(self):
+    def __init__(self, manager: LightBlueToolManager):
         self.name = "dispatch_agent"
         self.settings = Settings()
         self.scopes = [Scope.exec]
+        self.manager = manager
         self.description = """Launch a new agent that has access to the following tools: GlobTool, GrepTool, LS, View and others for searching information.
 
 Use this tool when you need to browse images. Place the image in the attatchments parameter.
@@ -48,7 +49,7 @@ Usage notes:
             ),
         ] = None,
     ) -> str:
-        tools = LightBlueToolManager().get_read_tools()
+        tools = self.manager.get_read_tools()
 
         self.agent = Agent(
             infer_model(self.settings.sub_agent_model or self.settings.default_model),
@@ -83,4 +84,4 @@ Usage notes:
 
 @hookimpl
 def register(manager):
-    manager.register(DispatchAgentTool())
+    manager.register(DispatchAgentTool(manager))
