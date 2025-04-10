@@ -51,15 +51,18 @@ class LightBlueAgent[T]:
         logger.info(f"Using model: {model_name}")
 
         self.enable_multi_turn = self.settings.enable_multi_turn
-        logger.info(f"multi-turn mode: {self.settings.enable_multi_turn}")
         if "anthropic" not in model_name and not isinstance(model, FunctionModel):
             max_description_length = max_description_length or 1000
             self.tool_return_data = False
-            logger.info(f"multi-turn mode, current max description length: {max_description_length}")
+            self.enable_multi_turn = self.settings.enable_multi_turn
         else:
             max_description_length = None
             self.tool_return_data = True
-            logger.info("Disabling multi-turn mode")
+            # Disable multi-turn mode for anthropic model
+            self.enable_multi_turn = False
+        logger.info(
+            f"Current multi-turn mode: {self.enable_multi_turn}, tool return data: {self.tool_return_data}, max description length: {max_description_length}"
+        )
 
         self.tool_manager = LightBlueToolManager(max_description_length=max_description_length)
         self.agent = Agent(
@@ -143,7 +146,6 @@ class LightBlueAgent[T]:
                 mess = pending_messages.model_copy(deep=True)
                 pending_messages.clear()
                 async with (
-                    self.agent.run_mcp_servers(),
                     self.agent.iter(
                         mess.messages,
                         message_history=run.result.all_messages(),
