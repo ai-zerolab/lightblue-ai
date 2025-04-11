@@ -23,7 +23,7 @@ class PlanTool(LightBlueTool):
         self,
         plan: Annotated[str, Field(description="A plan for the task.")],
     ) -> str:
-        return str
+        return plan
 
     def init_tool(self) -> Tool:
         return Tool(

@@ -13,7 +13,11 @@ class SaveWebTool(LightBlueTool):
     def __init__(self):
         self.name = "save_web_to_file"
         self.scopes = [Scope.web]
-        self.description = "Downloads files from the web (HTML, images, documents, etc.) and saves them to the specified path. Supports various file types including HTML, PNG, JPEG, PDF, and more."
+        self.description = (
+            "Downloads files from the web (HTML, images, documents, etc.) and saves them to the specified path. "
+            "Supports various file types including HTML, PNG, JPEG, PDF, and more. "
+            "Use `read_web` related tools if you need to read web pages. Only use this tool if you need to download files from the internet."
+        )
         self.settings = Settings()
         self.client = httpx.AsyncClient()
 

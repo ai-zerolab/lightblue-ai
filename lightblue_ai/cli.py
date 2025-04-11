@@ -190,7 +190,7 @@ async def stream(
     event_handler = ResponseEventHandler()
 
     console.print(Markdown(prompt))
-    with Live("", console=console, vertical_overflow="visible") as live:
+    with Live("", console=console, vertical_overflow="visible", refresh_per_second=1) as live:
         if agent.enable_multi_turn:
             async for run in agent.iter_multiple(prompt, message_history=message_history, usage=usage):
                 async for event in agent.yield_response_event(run):
