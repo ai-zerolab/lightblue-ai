@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     default_model: str | None = None
     sub_agent_model: str | None = None
     enable_multi_turn: bool = True
+    enable_bash_tool: bool = True
 
     jina_api_key: str | None = None
     tavily_api_key: str | None = None

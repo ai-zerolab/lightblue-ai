@@ -8,6 +8,7 @@ from typing import Annotated
 from pydantic import Field
 from pydantic_ai.tools import Tool
 
+from lightblue_ai.settings import Settings
 from lightblue_ai.tools.base import LightBlueTool, Scope
 from lightblue_ai.tools.extensions import hookimpl
 
@@ -134,4 +135,5 @@ class BashTool(LightBlueTool):
 
 @hookimpl
 def register(manager):
-    manager.register(BashTool())
+    if Settings().enable_bash_tool:
+        manager.register(BashTool())
