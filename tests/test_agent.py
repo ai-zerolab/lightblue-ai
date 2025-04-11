@@ -26,6 +26,8 @@ async def test_agent():
         """\
 thinking, Use the tool to think about something. It will not obtain new information or change the database, but just append the thought to the log. Use it when complex reasoning or some cache memory is needed., {'additionalProperties': False, 'properties': {'thought': {'description': 'A thought to think about.', 'type': 'string'}}, 'required': ['thought'], 'type': 'object'}
 
+Plan, Use the tool to draw a plan in markdown. It will not obtain new information or change the database, but just append the plan to the log. Use it when complex tasks like search or planning are needed. Use it multiple times to complete a complex task if necessary., {'additionalProperties': False, 'properties': {'plan': {'description': 'A plan for the task.', 'type': 'string'}}, 'required': ['plan'], 'type': 'object'}
+
 html_edit, This is a specialized tool for editing HTML files using XPath expressions to target specific elements.
 
 Before using this tool:
