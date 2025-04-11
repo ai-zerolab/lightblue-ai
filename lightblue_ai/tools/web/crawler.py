@@ -82,6 +82,7 @@ Useful for retrieving up-to-date information, specific data, or detailed backgro
                 "Accept": "application/json",
                 "X-Engine": "direct",
             },
+            timeout=60,
             follow_redirects=True,
         )
         response.raise_for_status()
@@ -115,6 +116,7 @@ class JinaReaderTool(LightBlueTool):
                 "Authorization": f"Bearer {self.settings.jina_api_key}",
             },
             follow_redirects=True,
+            timeout=60,
         )
         response.raise_for_status()
         return response.text
