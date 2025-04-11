@@ -26,6 +26,45 @@ async def test_agent():
         """\
 thinking, Use the tool to think about something. It will not obtain new information or change the database, but just append the thought to the log. Use it when complex reasoning or some cache memory is needed., {'additionalProperties': False, 'properties': {'thought': {'description': 'A thought to think about.', 'type': 'string'}}, 'required': ['thought'], 'type': 'object'}
 
+html_edit, This is a specialized tool for editing HTML files using XPath expressions to target specific elements.
+
+Before using this tool:
+
+1. Use the View tool to understand the HTML file's structure.
+2. Verify that the file is a valid HTML document.
+
+This tool allows you to replace the content of HTML elements by:
+- Targeting elements with XPath expressions
+- Replacing their entire content with new HTML
+
+To make an HTML edit, provide:
+1. file_path: The absolute path to the HTML file to modify (must be absolute, not relative).
+2. xpath: The XPath expression that identifies the element(s) to modify.
+   For example: "//div[@id='header']", "//h1[1]", or "//section[@class='about']".
+3. new_content: The new HTML content to replace the inner content of the targeted element(s).
+4. match_index: (Optional) The index of the element to modify if multiple elements match the XPath (0-based, default: 0).
+
+Common XPath expressions:
+- "//tagname": Selects all elements with the given tag name
+- "//tagname[@attr='value']": Selects elements with a specific attribute value
+- "//tagname[contains(@attr, 'partial')]": Selects elements with attribute containing a string
+- "//tagname[1]": Selects the first element with the given tag name
+- "//div[@id='main']//p": Selects all paragraphs inside the div with id="main"
+- "//h1 | //h2": Selects all h1 and h2 elements
+
+Examples:
+- To replace the main heading and subtitle: xpath="//header", new_content="<h1>New Heading</h1><p>New subtitle text</p>"
+- To replace the about section content: xpath="//section[@id='about']", new_content="<h2>About Us</h2><p>New about text...</p>"
+- To replace a specific navigation item: xpath="//nav//li[3]", new_content="<li><a href='contact.html'>Contact Us</a></li>"
+
+Best Practices:
+- This tool works best for replacing entire chunks of HTML rather than making small edits
+- Make comprehensive changes in a single operation instead of multiple small edits
+- Use highly specific XPath queries to ensure you target the exact element you want to modify
+- Test your XPath queries first to make sure they match exactly what you intend to replace
+- Create complete, well-formed HTML fragments for your replacement content
+, {'additionalProperties': False, 'properties': {'file_path': {'description': 'Absolute path to the HTML file to edit', 'type': 'string'}, 'xpath': {'description': 'XPath expression to target elements', 'type': 'string'}, 'new_content': {'description': 'New HTML content to replace the targeted elements', 'type': 'string'}, 'match_index': {'anyOf': [{'type': 'integer'}, {'type': 'null'}], 'default': None, 'description': 'Index of the element to modify if multiple elements match the XPath (0-based)'}}, 'required': ['file_path', 'xpath', 'new_content'], 'type': 'object'}
+
 BASH, Executes the given Bash command in a persistent shell session with optional timeout, ensuring appropriate security measures.
 #### **Pre-Execution Checks**
 
