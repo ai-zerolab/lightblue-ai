@@ -26,6 +26,47 @@ async def test_agent():
         """\
 thinking, Use the tool to think about something. It will not obtain new information or change the database, but just append the thought to the log. Use it when complex reasoning or some cache memory is needed., {'additionalProperties': False, 'properties': {'thought': {'description': 'A thought to think about.', 'type': 'string'}}, 'required': ['thought'], 'type': 'object'}
 
+Plan, Use the tool to draw a plan in markdown. It will not obtain new information or change the database, but just append the plan to the log. Use it when complex tasks like search or planning are needed. Use it multiple times to complete a complex task if necessary., {'additionalProperties': False, 'properties': {'plan': {'description': 'A plan for the task.', 'type': 'string'}}, 'required': ['plan'], 'type': 'object'}
+
+html_edit, This is a specialized tool for editing HTML files using XPath expressions to target specific elements.
+
+Before using this tool:
+
+1. Use the View tool to understand the HTML file's structure.
+2. Verify that the file is a valid HTML document.
+
+This tool allows you to replace the content of HTML elements by:
+- Targeting elements with XPath expressions
+- Replacing their entire content with new HTML
+
+To make an HTML edit, provide:
+1. file_path: The absolute path to the HTML file to modify (must be absolute, not relative).
+2. xpath: The XPath expression that identifies the element(s) to modify.
+   For example: "//div[@id='header']", "//h1[1]", or "//section[@class='about']".
+3. new_content: The new HTML content to replace the inner content of the targeted element(s).
+4. match_index: (Optional) The index of the element to modify if multiple elements match the XPath (0-based, default: 0).
+
+Common XPath expressions:
+- "//tagname": Selects all elements with the given tag name
+- "//tagname[@attr='value']": Selects elements with a specific attribute value
+- "//tagname[contains(@attr, 'partial')]": Selects elements with attribute containing a string
+- "//tagname[1]": Selects the first element with the given tag name
+- "//div[@id='main']//p": Selects all paragraphs inside the div with id="main"
+- "//h1 | //h2": Selects all h1 and h2 elements
+
+Examples:
+- To replace the main heading and subtitle: xpath="//header", new_content="<h1>New Heading</h1><p>New subtitle text</p>"
+- To replace the about section content: xpath="//section[@id='about']", new_content="<h2>About Us</h2><p>New about text...</p>"
+- To replace a specific navigation item: xpath="//nav//li[3]", new_content="<li><a href='contact.html'>Contact Us</a></li>"
+
+Best Practices:
+- This tool works best for replacing entire chunks of HTML rather than making small edits
+- Make comprehensive changes in a single operation instead of multiple small edits
+- Use highly specific XPath queries to ensure you target the exact element you want to modify
+- Test your XPath queries first to make sure they match exactly what you intend to replace
+- Create complete, well-formed HTML fragments for your replacement content
+, {'additionalProperties': False, 'properties': {'file_path': {'description': 'Absolute path to the HTML file to edit', 'type': 'string'}, 'xpath': {'description': 'XPath expression to target elements', 'type': 'string'}, 'new_content': {'description': 'New HTML content to replace the targeted elements', 'type': 'string'}, 'match_index': {'anyOf': [{'type': 'integer'}, {'type': 'null'}], 'default': None, 'description': 'Index of the element to modify if multiple elements match the XPath (0-based)'}}, 'required': ['file_path', 'xpath', 'new_content'], 'type': 'object'}
+
 BASH, Executes the given Bash command in a persistent shell session with optional timeout, ensuring appropriate security measures.
 #### **Pre-Execution Checks**
 
@@ -167,7 +208,7 @@ Use this tool when the file cannot be read with View tool
 
 convert_pdf_to_images, Converts a PDF file to multiple PNG image files. The file_path parameter must be an absolute path to a PDF file. The output_path parameter is optional and will default to the same directory as the input file if not provided.For PDF file, try convert_to_markdown tool first. For using this tool, you should to use View tool to view the images., {'additionalProperties': False, 'properties': {'file_path': {'description': 'Absolute path to the PDF file to convert', 'type': 'string'}, 'output_path': {'anyOf': [{'type': 'string'}, {'type': 'null'}], 'description': 'Optional. Absolute path to the directory to save the images. If not provided, the images will be saved in the same directory as the PDF file.'}}, 'required': ['file_path', 'output_path'], 'type': 'object'}
 
-save_web_to_file, Downloads files from the web (HTML, images, documents, etc.) and saves them to the specified path. Supports various file types including HTML, PNG, JPEG, PDF, and more., {'additionalProperties': False, 'properties': {'url': {'description': 'URL of the web resource to download', 'type': 'string'}, 'save_path': {'description': 'Path where the file should be saved', 'type': 'string'}}, 'required': ['url', 'save_path'], 'type': 'object'}
+save_web_to_file, Downloads files from the web (HTML, images, documents, etc.) and saves them to the specified path. Supports various file types including HTML, PNG, JPEG, PDF, and more. Use `read_web` related tools if you need to read web pages. Only use this tool if you need to download files from the internet., {'additionalProperties': False, 'properties': {'url': {'description': 'URL of the web resource to download', 'type': 'string'}, 'save_path': {'description': 'Path where the file should be saved', 'type': 'string'}}, 'required': ['url', 'save_path'], 'type': 'object'}
 
 dispatch_agent, Launch a new agent that has access to the following tools: GlobTool, GrepTool, LS, View and others for searching information.
 

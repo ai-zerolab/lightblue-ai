@@ -28,7 +28,12 @@ class LightBlueTool(ABC):
 
     @abstractmethod
     def init_tool(self) -> Tool:
-        """Initialize the pydantic-ai tool"""
+        return Tool(
+            function=self._bash,
+            name=self.name,
+            description=self.description,
+            max_retries=3,
+        )
 
     def is_read_tool(self) -> bool:
         return Scope.read in self.scopes
