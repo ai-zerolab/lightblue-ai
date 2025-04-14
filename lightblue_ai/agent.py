@@ -39,6 +39,7 @@ class LightBlueAgent[T]:
         mcp_servers: list[MCPServer] | None = None,
         retries: int = 3,
         max_description_length: int | None = None,
+        strict: bool | None = None,
     ):
         self.settings = Settings()
         model = model or self.settings.default_model
@@ -64,7 +65,7 @@ class LightBlueAgent[T]:
             f"Current multi-turn mode: {self.enable_multi_turn}, tool return data: {self.tool_return_data}, max description length: {max_description_length}"
         )
 
-        self.tool_manager = LightBlueToolManager(max_description_length=max_description_length)
+        self.tool_manager = LightBlueToolManager(max_description_length=max_description_length, strict=strict)
         self.agent = Agent(
             infer_model(model),
             result_type=result_type,
@@ -117,7 +118,10 @@ class LightBlueAgent[T]:
             self.agent.iter(
                 user_prompt,
                 message_history=message_history,
-                deps=PendingMessage(multi_turn=self.enable_multi_turn, tool_return_data=self.tool_return_data),
+                deps=PendingMessage(
+                    multi_turn=self.enable_multi_turn,
+                    tool_return_data=self.tool_return_data,
+                ),
             ) as run,
         ):
             yield run

@@ -40,11 +40,12 @@ class QueryTool(LightBlueTool):
         )
 
 
-def might_truncate(func):
+def fix_tool(func):
     @functools.wraps(func)
     def wrapper(self: LightBlueToolManager):
         r = func(self)
         self._truncate_tool_description(r)
+        self._with_strict(r)
         return r
 
     return wrapper
@@ -57,6 +58,7 @@ class LightBlueToolManager:
         self,
         enable_query_tools: bool = False,
         max_description_length: int | None = None,
+        strict: bool | None = None,
     ):
         self.pm = pluggy.PluginManager(PROJECT_NAME)
         self.pm.add_hookspecs(extensions)
@@ -73,6 +75,7 @@ class LightBlueToolManager:
             logger.info(f"Enabling query tools, max description length: {max_description_length}")
             self._registed_instance.append(QueryTool(self))
         self.max_description_length = max_description_length
+        self.strict = strict
 
     def _truncate_tool_description(self, tools: list[Tool]) -> None:
         if not self.max_description_length:
@@ -84,6 +87,13 @@ class LightBlueToolManager:
                 tool.description = (
                     tool.description[: self.max_description_length - len(truncated_reminder)] + truncated_reminder
                 )
+
+    def _with_strict(self, tools: list[Tool]) -> None:
+        if self.strict is None:
+            return
+
+        for tool in tools:
+            tool.strict = self.strict
 
     def get_lightblue_tool(self, tool_name: str) -> None | LightBlueTool:
         for tool in self._registed_instance:
@@ -138,26 +148,26 @@ class LightBlueToolManager:
         logger.debug(f"Registering tool: {instance}")
         self._registed_instance.append(instance)
 
-    @might_truncate
+    @fix_tool
     def get_sub_agent_tools(self) -> list[Tool]:
         return [i.init_tool() for i in self._registed_instance if i.is_read_tool() or i.is_web_tool()]
 
-    @might_truncate
+    @fix_tool
     def get_read_tools(self) -> list[Tool]:
         return [i.init_tool() for i in self._registed_instance if i.is_read_tool()]
 
-    @might_truncate
+    @fix_tool
     def get_write_tools(self) -> list[Tool]:
         return [i.init_tool() for i in self._registed_instance if i.is_write_tool()]
 
-    @might_truncate
+    @fix_tool
     def get_exec_tools(self) -> list[Tool]:
         return [i.init_tool() for i in self._registed_instance if i.is_exec_tool()]
 
-    @might_truncate
+    @fix_tool
     def get_generation_tools(self) -> list[Tool]:
         return [i.init_tool() for i in self._registed_instance if i.is_generation_tool()]
 
-    @might_truncate
+    @fix_tool
     def get_all_tools(self) -> list[Tool]:
         return [i.init_tool() for i in self._registed_instance]
