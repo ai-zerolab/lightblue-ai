@@ -1,10 +1,10 @@
 [project]
 name = "lightblue-ai"
 version = "0.0.1"
-description = "Light Blue is a lightweight agent designed for coding."
+description = "Light Blue is an agentic agent framework for building AI applications"
 authors = [{ name = "Wh1isper", email = "jizhongsheng957@gmail.com" }]
 readme = "README.md"
-keywords = ['python']
+keywords = ['llm', "agent", "agentic"]
 requires-python = ">=3.10,<4.0"
 classifiers = [
     "Intended Audience :: Developers",

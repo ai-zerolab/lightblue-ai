@@ -12,29 +12,29 @@
 >
 > [The Bitter Lesson: Rethinking How We Build AI Systems](https://ankitmaloo.com/bitter-lesson/)
 
-Light Blue is an agent designed for generating HTML.
+Light Blue is an agentic agent framework for building AI applications.
 
 - **Github repository**: <https://github.com/ai-zerolab/lightblue-ai/>
-
-## Pre-requisites
-
-### Mac
-
-Mac users will have to install poppler for pdf to image conversion
-
-Installing using Brew:
-
-```bash
-brew install poppler
-```
-
-### Linux
-
-Most distros ship with pdftoppm and pdftocairo. If they are not installed, refer to your package manager to install poppler-utils. e.g. `apt-get install poppler-utils`
 
 ## Usage
 
 ### CLI
+
+#### Stream
+
+Directly prompt:
+
+```bash
+uvx lightblue-ai stream <prompt>
+```
+
+Use prompt file:
+
+```bash
+uvx lightblue-ai stream prompt.md # Or just uvx lightblue-ai stream, prompt.md is the default prompt file
+```
+
+#### Submit
 
 Directly prompt:
 
@@ -54,8 +54,29 @@ See [agent.py](./lightblue_ai/agent.py) and [Examples](./examples/README.md)
 
 ## Configuration
 
+- `prompt.md` use this file as the user prompt
 - `system_prompt.md` to Override [system prompt](./lightblue_ai/prompts/templates/system_prompt.md)
 - `mcp.json` to configure [MCP](./mcp.example.json)
 - `.env` for [setting environment variables](./.env.example)
 
 Once you provided the api-key of the tools, tools will automatically be loaded.
+
+## Tools
+
+### PDF to Image
+
+You need to install poppler for pdf to image conversion
+
+#### Mac
+
+Mac users will have to install poppler for pdf to image conversion
+
+Installing using Brew:
+
+```bash
+brew install poppler
+```
+
+#### Linux
+
+Most distros ship with pdftoppm and pdftocairo. If they are not installed, refer to your package manager to install poppler-utils. e.g. `apt-get install poppler-utils`
