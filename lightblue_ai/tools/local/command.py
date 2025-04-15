@@ -53,8 +53,8 @@ class BashTool(LightBlueTool):
 - **Persistent Shell Session**: Environment variables, virtual environments, and current directories persist across sessions.
 - **Avoid using `cd`**, unless explicitly required by the user.
 - **Examples**:
-  - ✅ **Preferred**: `pytest /foo/bar/tests`
-  - ❌ **Avoid**: `cd /foo/bar && pytest tests`
+  - ✅ **Preferred**: `["pytest", "/foo/bar/tests"]`
+  - ❌ **Avoid**: `["cd /foo/bar", "&&", "pytest tests"]`
 """
 
     async def call(
