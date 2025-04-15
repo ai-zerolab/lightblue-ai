@@ -2,7 +2,6 @@ from typing import Annotated
 
 from markitdown import MarkItDown
 from pydantic import Field
-from pydantic_ai import Tool
 
 from lightblue_ai.tools.base import LightBlueTool, Scope
 from lightblue_ai.tools.extensions import hookimpl
@@ -34,7 +33,7 @@ At present, MarkItDown supports:
 Use this tool when the file cannot be read with View tool
 """
 
-    def _anything2markdown(
+    async def call(
         self,
         source: Annotated[
             str,
@@ -47,13 +46,6 @@ Use this tool when the file cannot be read with View tool
         ],
     ) -> str:
         return (self.md.convert(source)).text_content
-
-    def init_tool(self) -> Tool:
-        return Tool(
-            function=self._anything2markdown,
-            name=self.name,
-            description=self.description,
-        )
 
 
 @hookimpl

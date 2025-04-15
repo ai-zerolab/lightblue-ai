@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Annotated
 
 from pydantic import Field
-from pydantic_ai import Agent, BinaryContent, Tool
+from pydantic_ai import Agent, BinaryContent
 
 from lightblue_ai.log import logger
 from lightblue_ai.models import infer_model
@@ -36,7 +36,7 @@ Usage notes:
 5. IMPORTANT: The agent cannot use Bash, Replace, Edit, so it cannot modify files. If you need to use these tools, use them directly instead of going through the agent.
 """
 
-    async def _dispatch_agent(
+    async def call(
         self,
         system_prompt: Annotated[str, Field(description="System prompt for the agent.")],
         objective: Annotated[str, Field(description="The objective to achieve.")],
@@ -72,13 +72,6 @@ Usage notes:
                 attatchment_data.append(data)
                 logger.info(f"{path} attatchment added")
         return (await self.agent.run([objective, *attatchment_data])).data
-
-    def init_tool(self) -> Tool:
-        return Tool(
-            name=self.name,
-            function=self._dispatch_agent,
-            description=self.description,
-        )
 
 
 @hookimpl

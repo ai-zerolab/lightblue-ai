@@ -2,7 +2,6 @@ from typing import Annotated
 
 import httpx
 from pydantic import Field
-from pydantic_ai.tools import Tool
 
 from lightblue_ai.settings import Settings
 from lightblue_ai.tools.base import LightBlueTool, Scope
@@ -21,7 +20,7 @@ class SaveWebTool(LightBlueTool):
         self.settings = Settings()
         self.client = httpx.AsyncClient()
 
-    async def _save_web(
+    async def call(
         self,
         url: Annotated[str, Field(description="URL of the web resource to download")],
         save_path: Annotated[str, Field(description="Path where the file should be saved")],
@@ -76,13 +75,6 @@ class SaveWebTool(LightBlueTool):
                 "content_type": content_type,
                 "message": f"File successfully saved to {save_path}",
             }
-
-    def init_tool(self) -> Tool:
-        return Tool(
-            function=self._save_web,
-            name=self.name,
-            description=self.description,
-        )
 
 
 @hookimpl

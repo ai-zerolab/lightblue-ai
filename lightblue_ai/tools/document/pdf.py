@@ -3,7 +3,6 @@ from typing import Annotated, Any
 
 from pdf2image import convert_from_path
 from pydantic import Field
-from pydantic_ai import Tool
 
 from lightblue_ai.tools.base import LightBlueTool, Scope
 from lightblue_ai.tools.extensions import hookimpl
@@ -23,7 +22,7 @@ class Pdf2ImageTool(LightBlueTool):
             "For using this tool, you should to use View tool to view the images."
         )
 
-    async def _pdf2images(
+    async def call(
         self,
         file_path: Annotated[str, Field(description="Absolute path to the PDF file to convert")],
         output_path: Annotated[
@@ -70,13 +69,6 @@ class Pdf2ImageTool(LightBlueTool):
                 "error": f"Failed to convert PDF to images: {e!s}",
                 "success": False,
             }
-
-    def init_tool(self) -> Tool:
-        return Tool(
-            function=self._pdf2images,
-            name=self.name,
-            description=self.description,
-        )
 
 
 @hookimpl

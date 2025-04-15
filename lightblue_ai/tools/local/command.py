@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import Annotated
 
 from pydantic import Field
-from pydantic_ai.tools import Tool
 
 from lightblue_ai.settings import Settings
 from lightblue_ai.tools.base import LightBlueTool, Scope
@@ -58,7 +57,7 @@ class BashTool(LightBlueTool):
   - ❌ **Avoid**: `cd /foo/bar && pytest tests`
 """
 
-    async def _bash(
+    async def call(
         self,
         command: Annotated[list[str], Field(description="The command to execute as a list of strings")],
         timeout_seconds: Annotated[int, Field(default=30, description="Maximum execution time in seconds")] = 30,
@@ -128,9 +127,6 @@ class BashTool(LightBlueTool):
                 "stderr": "",
                 "return_code": 1,
             }
-
-    def init_tool(self) -> Tool:
-        return Tool(function=self._bash, name=self.name, description=self.description, max_retries=3)
 
 
 @hookimpl

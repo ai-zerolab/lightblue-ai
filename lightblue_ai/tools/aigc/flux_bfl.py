@@ -7,7 +7,6 @@ from typing import Annotated, Any
 import httpx
 from PIL import Image
 from pydantic import Field
-from pydantic_ai import Tool
 
 from lightblue_ai.log import logger
 from lightblue_ai.settings import Settings
@@ -243,14 +242,7 @@ class FluxBflTool(LightBlueTool):
         self.description = "Generate an image using the Flux API and save it to a local file."
         self.settings = Settings()
 
-    def init_tool(self) -> Tool:
-        return Tool(
-            function=self._flux_generate_image,
-            name=self.name,
-            description=self.description,
-        )
-
-    async def _flux_generate_image(
+    async def call(
         self,
         prompt: Annotated[str, Field(description="The text prompt for image generation")],
         output_dir: Annotated[str, Field(description="The directory to save the image")],

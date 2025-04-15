@@ -1,7 +1,6 @@
 from typing import Annotated
 
 from pydantic import Field
-from pydantic_ai.tools import Tool
 
 from lightblue_ai.tools.base import LightBlueTool, Scope
 from lightblue_ai.tools.extensions import hookimpl
@@ -19,18 +18,11 @@ class PlanTool(LightBlueTool):
             "Use it multiple times to complete a complex task if necessary."
         )
 
-    async def _plan(
+    async def call(
         self,
         plan: Annotated[str, Field(description="A plan for the task.")],
     ) -> str:
         return plan
-
-    def init_tool(self) -> Tool:
-        return Tool(
-            function=self._plan,
-            name=self.name,
-            description=self.description,
-        )
 
 
 @hookimpl

@@ -57,7 +57,7 @@ class TestGlobTool:
         # Get the expected sorted result
         expected_result = mock_glob_and_sort()
 
-        # Now test the actual _glob function with mocks
+        # Now test the actual call function with mocks
         with patch("pathlib.Path.glob") as mock_glob:
             # Return the files in any order, the function should sort them
             mock_glob.return_value = [file1, file3, file2]
@@ -75,8 +75,8 @@ class TestGlobTool:
 
             # Apply the patch to Path.stat
             with patch.object(Path, "stat", mock_stat_side_effect):
-                # Test the _glob function
-                result = await glob_tool._glob("**/*.py")
+                # Test the call function
+                result = await glob_tool.call("**/*.py")
 
             # Verify the glob pattern was passed correctly
             mock_glob.assert_called_once_with("**/*.py")
@@ -118,8 +118,8 @@ class TestGrepTool:
             mock_file.readlines.return_value = mock_file_content
             mock_open.return_value.__enter__.return_value = mock_file
 
-            # Test the _grep function with a pattern that matches lines with "important"
-            result = await grep_tool._grep(pattern="important", include="**/*.txt", context_lines=1)
+            # Test the call function with a pattern that matches lines with "important"
+            result = await grep_tool.call(pattern="important", include="**/*.txt", context_lines=1)
 
             # Verify the glob pattern was passed correctly
             mock_glob.assert_called_once_with("**/*.txt")
@@ -177,8 +177,8 @@ class TestListTool:
 
             mock_get_file_info.side_effect = mock_file_info
 
-            # Test the _list function with non-recursive listing
-            result = await list_tool._list(path=str(test_dir), recursive=False)
+            # Test the call function with non-recursive listing
+            result = await list_tool.call(path=str(test_dir), recursive=False)
 
             # Verify the results
             assert result["path"] == str(test_dir)
@@ -186,7 +186,7 @@ class TestListTool:
             assert len(result["entries"]) == 3  # Excluding hidden file
 
             # Test with include_hidden=True
-            result = await list_tool._list(path=str(test_dir), include_hidden=True)
+            result = await list_tool.call(path=str(test_dir), include_hidden=True)
 
             # Verify the results include hidden files
             assert len(result["entries"]) == 4  # Including hidden file
@@ -212,9 +212,9 @@ class TestViewTool:
         mock_file_content = "Line 1\nLine 2\nLine 3\nLine 4\nLine 5\n"
         test_file.write_text(mock_file_content)
 
-        # Test the _view function with a real file
+        # Test the call function with a real file
         ctx = DummyCtx(deps=PendingMessage(multi_turn=False, tool_return_data=True))
-        result = await view_tool._view(ctx=ctx, file_path=str(test_file))
+        result = await view_tool.call(ctx=ctx, file_path=str(test_file))
 
         # Verify the result is the file content
         assert result == mock_file_content
@@ -226,9 +226,9 @@ class TestViewTool:
         mock_binary_content = b"binary content"
         test_file.write_bytes(mock_binary_content)
 
-        # Test the _view function with a real binary file
+        # Test the call function with a real binary file
         ctx = DummyCtx(deps=PendingMessage(multi_turn=False, tool_return_data=True))
-        result = await view_tool._view(ctx=ctx, file_path=str(test_file))
+        result = await view_tool.call(ctx=ctx, file_path=str(test_file))
 
         # Verify the result is a BinaryContent object
         assert isinstance(result, BinaryContent)
@@ -237,7 +237,7 @@ class TestViewTool:
 
         deps = PendingMessage(multi_turn=True, tool_return_data=True)
         ctx = DummyCtx(deps=deps)
-        result = await view_tool._view(ctx=ctx, file_path=str(test_file))
+        result = await view_tool.call(ctx=ctx, file_path=str(test_file))
 
         # Verify the result is a str object and have pending message
         assert isinstance(result, str)
@@ -248,7 +248,7 @@ class TestViewTool:
 
         deps = PendingMessage(multi_turn=False, tool_return_data=False)
         ctx = DummyCtx(deps=deps)
-        result = await view_tool._view(ctx=ctx, file_path=str(test_file))
+        result = await view_tool.call(ctx=ctx, file_path=str(test_file))
 
         # Verify the result is a str object and have pending message
         assert isinstance(result, str)
@@ -279,8 +279,8 @@ class TestEditTool:
             mock_file.read.return_value = mock_file_content
             mock_open.return_value.__enter__.return_value = mock_file
 
-            # Test the _edit function
-            result = await edit_tool._edit(
+            # Test the call function
+            result = await edit_tool.call(
                 file_path=str(test_file), old_string="Line 3\n", new_string="Modified Line 3\n"
             )
 
@@ -308,8 +308,8 @@ class TestEditTool:
             mock_file = MagicMock()
             mock_open.return_value.__enter__.return_value = mock_file
 
-            # Test the _edit function for creating a new file
-            result = await edit_tool._edit(file_path=str(test_file), old_string="", new_string="New file content")
+            # Test the call function for creating a new file
+            result = await edit_tool.call(file_path=str(test_file), old_string="", new_string="New file content")
 
             # Verify the result is a success message
             assert "Successfully created new file" in result
@@ -340,8 +340,8 @@ class TestReplaceTool:
             mock_file = MagicMock()
             mock_open.return_value.__enter__.return_value = mock_file
 
-            # Test the _replace function
-            result = await replace_tool._replace(file_path=str(test_file), content="New file content")
+            # Test the call function
+            result = await replace_tool.call(file_path=str(test_file), content="New file content")
 
             # Verify the result is a success message
             assert "Successfully wrote to file" in result
@@ -369,8 +369,8 @@ class TestBashTool:
         # Mock asyncio.create_subprocess_exec
         mock_process = MockProcess(stdout=b"stdout output", stderr=b"stderr output", returncode=0)
         with patch("asyncio.create_subprocess_exec", return_value=mock_process) as mock_exec:
-            # Test the _bash function
-            result = await bash_tool._bash(command=["echo", "hello"], timeout_seconds=10)
+            # Test the call function
+            result = await bash_tool.call(command=["echo", "hello"], timeout_seconds=10)
 
             # Verify the command was executed correctly
             mock_exec.assert_called_once()
@@ -388,8 +388,8 @@ class TestBashTool:
         mock_process = MockProcess()
         mock_process.communicate = AsyncMock(side_effect=asyncio.TimeoutError())
         with patch("asyncio.create_subprocess_exec", return_value=mock_process) as mock_exec:
-            # Test the _bash function with a timeout
-            result = await bash_tool._bash(command=["sleep", "100"], timeout_seconds=1)
+            # Test the call function with a timeout
+            result = await bash_tool.call(command=["sleep", "100"], timeout_seconds=1)
 
             # Verify the command was executed
             mock_exec.assert_called_once()
