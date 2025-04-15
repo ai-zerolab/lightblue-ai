@@ -3,7 +3,6 @@ from typing import Annotated
 import httpx
 from pydantic import Field
 
-from lightblue_ai.settings import Settings
 from lightblue_ai.tools.base import LightBlueTool, Scope
 from lightblue_ai.tools.extensions import hookimpl
 
@@ -17,7 +16,6 @@ class SaveWebTool(LightBlueTool):
             "Supports various file types including HTML, PNG, JPEG, PDF, and more. "
             "Use `read_web` related tools if you need to read web pages. Only use this tool if you need to download files from the internet."
         )
-        self.settings = Settings()
         self.client = httpx.AsyncClient()
 
     async def call(

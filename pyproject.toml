@@ -118,6 +118,8 @@ ignore = [
 "tests/*" = ["S101", "B015"]
 "lightblue_ai/cli.py" = ["B008"]
 "lightblue_ai/models/*" = ["B", "TRY", "C", "S", "A", "SIM", "PGH"]
+"examples/*" = ["B", "TRY", "C", "S", "A", "SIM", "PGH", "RUF"]
+
 
 [tool.ruff.format]
 preview = true

@@ -26,18 +26,11 @@ class QueryTool(LightBlueTool):
         self._manager = manager
         self.description = "For tool's description is truncated, before calling the tool you need to use this tool to get the full description of the tool."
 
-    def query_tool_desciption(self, tool_name: str) -> str:
+    async def call(self, tool_name: str) -> str:
         tool = self._manager.get_lightblue_tool(tool_name)
         if tool is None:
             return "No tool found"
         return tool.description
-
-    def init_tool(self) -> Tool:
-        return Tool(
-            function=self.query_tool_desciption,
-            name=self.name,
-            description=self.description,
-        )
 
 
 def fix_tool(func):
