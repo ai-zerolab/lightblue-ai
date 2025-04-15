@@ -1,3 +1,4 @@
 Today is {{ date }}
-Current working directory: {{ cwd }}
 Current platform: {{ platform }}
+Current working directory: {{ cwd }}
+Current file tree: {{ filetree }}
