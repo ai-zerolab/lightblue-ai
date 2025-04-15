@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Annotated, Any
 
 from pydantic import Field
-from pydantic_ai import BinaryContent, RunContext, Tool
+from pydantic_ai import BinaryContent, RunContext
 
 from lightblue_ai.log import logger
 from lightblue_ai.tools.base import LightBlueTool, Scope
@@ -24,7 +24,7 @@ class GlobTool(LightBlueTool):
 - When you are doing an open ended search that may require multiple rounds of globbing and grepping, use the Agent tool instead
 """
 
-    async def _glob(
+    async def call(
         self,
         pattern: Annotated[str, Field(description="Glob pattern to match files (e.g. '**/*.py')")],
     ) -> list[str]:
@@ -45,13 +45,6 @@ class GlobTool(LightBlueTool):
 
         return matching_files
 
-    def init_tool(self) -> Tool:
-        return Tool(
-            function=self._glob,
-            name=self.name,
-            description=self.description,
-        )
-
 
 class GrepTool(LightBlueTool):
     def __init__(self):
@@ -66,7 +59,7 @@ class GrepTool(LightBlueTool):
 - When you are doing an open ended search that may require multiple rounds of globbing and grepping, use the Agent tool instead
 """
 
-    async def _grep(
+    async def call(
         self,
         pattern: Annotated[str, Field(description="Regular expression pattern to search for")],
         include: Annotated[
@@ -138,13 +131,6 @@ class GrepTool(LightBlueTool):
 
         return results
 
-    def init_tool(self) -> Tool:
-        return Tool(
-            function=self._grep,
-            name=self.name,
-            description=self.description,
-        )
-
 
 def _get_file_info(path: Path) -> dict[str, Any]:
     """Get information about a file or directory.
@@ -179,7 +165,7 @@ class ListTool(LightBlueTool):
         self.scopes = [Scope.read]
         self.description = "Lists files and directories in a given path. The path parameter must be an absolute path, not a relative path. You should generally prefer the Glob and Grep tools, if you know which directories to search"
 
-    async def _list(  # noqa: C901
+    async def call(  # noqa: C901
         self,
         path: Annotated[str, Field(description="Directory path")],
         recursive: Annotated[bool, Field(default=False, description="Whether to list recursively")] = False,
@@ -327,13 +313,6 @@ class ListTool(LightBlueTool):
                 "success": False,
             }
 
-    def init_tool(self) -> Tool:
-        return Tool(
-            function=self._list,
-            name=self.name,
-            description=self.description,
-        )
-
 
 class ViewTool(LightBlueTool, MediaMixin):
     def __init__(self):
@@ -350,7 +329,7 @@ class ViewTool(LightBlueTool, MediaMixin):
             "For very large PDF files, you need to use the PDF2Images tool to convert them into multiple images and read the images to understand the PDF."
         )
 
-    async def _view(  # noqa: C901
+    async def call(  # noqa: C901
         self,
         ctx: RunContext[PendingMessage],
         file_path: Annotated[str, Field(description="Absolute path to the file to read")],
@@ -422,13 +401,6 @@ class ViewTool(LightBlueTool, MediaMixin):
         except Exception as e:
             return f"Error reading file: {e!s}"
 
-    def init_tool(self) -> Tool:
-        return Tool(
-            function=self._view,
-            name=self.name,
-            description=self.description,
-        )
-
 
 class EditTool(LightBlueTool):
     def __init__(self):
@@ -483,7 +455,7 @@ If you want to create a new file, use:
 Remember: when making multiple file edits in a row to the same file, you should prefer to send all edits in a single message with multiple calls to this tool, rather than multiple messages with a single call each.
 """
 
-    async def _edit(
+    async def call(
         self,
         file_path: Annotated[str, Field(description="Absolute path to the file to edit")],
         old_string: Annotated[str, Field(description="Text to replace (must be unique within the file)")],
@@ -549,14 +521,6 @@ Remember: when making multiple file edits in a row to the same file, you should 
         else:
             return f"Successfully edited file: {file_path}"
 
-    def init_tool(self) -> Tool:
-        return Tool(
-            function=self._edit,
-            name=self.name,
-            description=self.description,
-            max_retries=3,
-        )
-
 
 class ReplaceTool(LightBlueTool):
     def __init__(self):
@@ -572,7 +536,7 @@ Before using this tool:
     - Use the LS tool to verify the parent directory exists and is the correct location.
 """
 
-    async def _replace(
+    async def call(
         self,
         file_path: Annotated[str, Field(description="Absolute path to the file to write")],
         content: Annotated[str, Field(description="Content to write to the file")],
@@ -602,14 +566,6 @@ Before using this tool:
             return f"Error writing to file: {e!s}"
         else:
             return f"Successfully wrote to file: {file_path}"
-
-    def init_tool(self) -> Tool:
-        return Tool(
-            function=self._replace,
-            name=self.name,
-            description=self.description,
-            max_retries=3,
-        )
 
 
 @hookimpl

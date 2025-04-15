@@ -27,9 +27,12 @@ class LightBlueTool(ABC):
     description: str
 
     @abstractmethod
+    async def call(self, *args, **kwargs):
+        """Implementation of the tool."""
+
     def init_tool(self) -> Tool:
         return Tool(
-            function=self._bash,
+            function=self.call,
             name=self.name,
             description=self.description,
             max_retries=3,

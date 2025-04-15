@@ -3,7 +3,6 @@ from typing import Annotated
 
 from lxml import etree, html
 from pydantic import Field
-from pydantic_ai import Tool
 
 from lightblue_ai.tools.base import LightBlueTool, Scope
 from lightblue_ai.tools.extensions import hookimpl
@@ -52,7 +51,7 @@ Best Practices:
 - Create complete, well-formed HTML fragments for your replacement content
 """
 
-    def _edit_html(  # noqa: C901
+    async def call(  # noqa: C901
         self,
         file_path: Annotated[str, Field(description="Absolute path to the HTML file to edit")],
         xpath: Annotated[str, Field(description="XPath expression to target elements")],
@@ -164,13 +163,6 @@ Best Practices:
         except Exception:
             # If operation fails, return False
             return False
-
-    def init_tool(self) -> Tool:
-        return Tool(
-            function=self._edit_html,
-            name=self.name,
-            description=self.description,
-        )
 
 
 @hookimpl
