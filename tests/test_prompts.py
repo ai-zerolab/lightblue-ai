@@ -4,18 +4,16 @@ from pathlib import Path
 
 from inline_snapshot import snapshot
 
-from lightblue_ai.prompts import (
-    get_context,
-    get_system_prompt,
-)
+from lightblue_ai.prompts import _get_filetree, get_context, get_system_prompt
 
 
 def test_get_prompts():
     get_context() == snapshot(
         f"""\
 Today is {datetime.now().strftime("%Y-%m-%d")}
+Current platform: {sys.platform}
 Current working directory: {Path.cwd().resolve().absolute().as_posix()}
-Current platform: {sys.platform}\
+Current file tree: {_get_filetree(Path.cwd())}\
 """
     )
 
