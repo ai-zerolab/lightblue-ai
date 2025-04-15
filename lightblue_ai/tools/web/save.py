@@ -15,6 +15,7 @@ class SaveWebTool(LightBlueTool):
             "Downloads files from the web (HTML, images, documents, etc.) and saves them to the specified path. "
             "Supports various file types including HTML, PNG, JPEG, PDF, and more. "
             "Use `read_web` related tools if you need to read web pages. Only use this tool if you need to download files from the internet."
+            "Use `view_web_file` if you want to view files from the internet directly."
         )
         self.client = httpx.AsyncClient()
 
