@@ -325,7 +325,7 @@ class ViewTool(LightBlueTool, MediaMixin):
             "You can optionally specify a line offset and limit (especially handy for long files), "
             "but it's recommended to read the whole file by not providing these parameters. "
             "Any lines longer than 2000 characters will be truncated. "
-            "For image files, the tool will display the image for you. If you cannot read image via tool, will display in next user prompt, please do not reply at this point, just wait for the next prompt. "
+            "For image files, the tool will display the image for you. If you cannot read image via tool, just call the tool and it will display in next user prompt, you can wait for the next prompt."
             "For very large PDF files, you need to use the PDF2Images tool to convert them into multiple images and read the images to understand the PDF."
         )
 
