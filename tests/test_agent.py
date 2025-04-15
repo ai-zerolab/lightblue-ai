@@ -104,8 +104,8 @@ BASH, Executes the given Bash command in a persistent shell session with optiona
 - **Persistent Shell Session**: Environment variables, virtual environments, and current directories persist across sessions.
 - **Avoid using `cd`**, unless explicitly required by the user.
 - **Examples**:
-  - ✅ **Preferred**: `pytest /foo/bar/tests`
-  - ❌ **Avoid**: `cd /foo/bar && pytest tests`
+  - ✅ **Preferred**: `["pytest", "/foo/bar/tests"]`
+  - ❌ **Avoid**: `["cd /foo/bar", "&&", "pytest tests"]`
 , {'additionalProperties': False, 'properties': {'command': {'description': 'The command to execute as a list of strings', 'items': {'type': 'string'}, 'type': 'array'}, 'timeout_seconds': {'default': 30, 'description': 'Maximum execution time in seconds', 'type': 'integer'}, 'working_dir': {'anyOf': [{'type': 'string'}, {'type': 'null'}], 'default': None, 'description': 'Directory to execute the command in'}}, 'required': ['command'], 'type': 'object'}
 
 GrepTool, - Fast content search tool that works with any codebase size

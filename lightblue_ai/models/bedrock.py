@@ -28,7 +28,12 @@ from pydantic_ai.messages import (
     ToolReturnPart,
     UserPromptPart,
 )
-from pydantic_ai.models import Model, ModelRequestParameters, StreamedResponse, cached_async_http_client
+from pydantic_ai.models import (
+    Model,
+    ModelRequestParameters,
+    StreamedResponse,
+    cached_async_http_client,
+)
 from pydantic_ai.providers import Provider, infer_provider
 from pydantic_ai.settings import ModelSettings
 from pydantic_ai.tools import ToolDefinition
@@ -363,7 +368,10 @@ class BedrockConverseModel(Model):
                     elif isinstance(part, RetryPromptPart):
                         # TODO(Marcelo): We need to add a test here.
                         if part.tool_name is None:  # pragma: no cover
-                            bedrock_messages.append({"role": "user", "content": [{"text": part.model_response()}]})
+                            bedrock_messages.append({
+                                "role": "user",
+                                "content": [{"text": part.model_response()}],
+                            })
                         else:
                             assert part.tool_call_id is not None
                             bedrock_messages.append({
@@ -406,11 +414,32 @@ class BedrockConverseModel(Model):
                     if item.is_document:
                         document_count += 1
                         name = f"Document {document_count}"
-                        assert format in ("pdf", "txt", "csv", "doc", "docx", "xls", "xlsx", "html", "md")
-                        content.append({"document": {"name": name, "format": format, "source": {"bytes": item.data}}})
+                        assert format in (
+                            "pdf",
+                            "txt",
+                            "csv",
+                            "doc",
+                            "docx",
+                            "xls",
+                            "xlsx",
+                            "html",
+                            "md",
+                        )
+                        content.append({
+                            "document": {
+                                "name": name,
+                                "format": format,
+                                "source": {"bytes": item.data},
+                            }
+                        })
                     elif item.is_image:
                         assert format in ("jpeg", "png", "gif", "webp")
-                        content.append({"image": {"format": format, "source": {"bytes": item.data}}})
+                        content.append({
+                            "image": {
+                                "format": format,
+                                "source": {"bytes": item.data},
+                            }
+                        })
                     else:
                         raise NotImplementedError("Binary content is not supported yet.")
                 elif isinstance(item, (ImageUrl, DocumentUrl)):
@@ -418,14 +447,28 @@ class BedrockConverseModel(Model):
                     response.raise_for_status()
                     if item.kind == "image-url":
                         format = item.media_type.split("/")[1]
-                        assert format in ("jpeg", "png", "gif", "webp"), f"Unsupported image format: {format}"
-                        image: ImageBlockTypeDef = {"format": format, "source": {"bytes": response.content}}
+                        assert format in (
+                            "jpeg",
+                            "png",
+                            "gif",
+                            "webp",
+                        ), f"Unsupported image format: {format}"
+                        image: ImageBlockTypeDef = {
+                            "format": format,
+                            "source": {"bytes": response.content},
+                        }
                         content.append({"image": image})
                     elif item.kind == "document-url":
                         document_count += 1
                         name = f"Document {document_count}"
                         data = response.content
-                        content.append({"document": {"name": name, "format": item.format, "source": {"bytes": data}}})
+                        content.append({
+                            "document": {
+                                "name": name,
+                                "format": item.format,
+                                "source": {"bytes": data},
+                            }
+                        })
                 elif isinstance(item, AudioUrl):  # pragma: no cover
                     raise NotImplementedError("Audio is not supported yet.")
                 else:
@@ -435,7 +478,11 @@ class BedrockConverseModel(Model):
     @staticmethod
     def _map_tool_call(t: ToolCallPart) -> ContentBlockOutputTypeDef:
         return {
-            "toolUse": {"toolUseId": _utils.guard_tool_call_id(t=t), "name": t.tool_name, "input": t.args_as_dict()}
+            "toolUse": {
+                "toolUseId": _utils.guard_tool_call_id(t=t),
+                "name": t.tool_name,
+                "input": t.args_as_dict(),
+            }
         }
 
 
@@ -490,7 +537,7 @@ class BedrockStreamedResponse(StreamedResponse):
                     maybe_event = self._parts_manager.handle_tool_call_delta(
                         vendor_part_id=index,
                         tool_name=tool_use.get("name"),
-                        args=tool_use.get("input"),
+                        args=tool_use.get("input") or None,  # https://github.com/pydantic/pydantic-ai/pull/1407
                         tool_call_id=tool_id,
                     )
                     if maybe_event:
