@@ -2,7 +2,6 @@ from typing import Annotated, Any
 
 import httpx
 from pydantic import Field
-from pydantic_ai.tools import Tool
 
 from lightblue_ai.settings import Settings
 from lightblue_ai.tools.base import LightBlueTool, Scope
@@ -20,7 +19,7 @@ query: A Search term. If omitted, all images are returned. This value may not ex
         self.settings = Settings()
         self.client = httpx.AsyncClient()
 
-    async def _search_image(
+    async def call(
         self,
         query: Annotated[
             str,
@@ -39,13 +38,6 @@ query: A Search term. If omitted, all images are returned. This value may not ex
         )
         response.raise_for_status()
         return response.json()
-
-    def init_tool(self) -> Tool:
-        return Tool(
-            function=self._search_image,
-            name=self.name,
-            description=self.description,
-        )
 
 
 @hookimpl

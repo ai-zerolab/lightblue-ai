@@ -2,7 +2,6 @@ from typing import Annotated, Any, Literal
 
 import httpx
 from pydantic import Field
-from pydantic_ai import Tool
 from tavily import AsyncTavilyClient
 
 from lightblue_ai.settings import Settings
@@ -20,7 +19,7 @@ If the initial query is too broad or results are not ideal, the LLM can refine t
 Useful for retrieving up-to-date information, specific data, or detailed background research.
 """
 
-    async def _search_with_tavily(
+    async def call(
         self,
         query: Annotated[str, Field(description="The search query")],
         search_deep: Annotated[
@@ -45,13 +44,6 @@ Useful for retrieving up-to-date information, specific data, or detailed backgro
             }
         return results["results"]
 
-    def init_tool(self) -> Tool:
-        return Tool(
-            function=self._search_with_tavily,
-            name=self.name,
-            description=self.description,
-        )
-
 
 class JinaSearchTool(LightBlueTool):
     def __init__(self):
@@ -64,7 +56,7 @@ Useful for retrieving up-to-date information, specific data, or detailed backgro
 """
         self.client = httpx.AsyncClient()
 
-    async def _search_with_jina(
+    async def call(
         self,
         query: Annotated[str, Field(description="The search query")],
         page: Annotated[int, Field(default=1, description="The page number")] = 1,
@@ -88,13 +80,6 @@ Useful for retrieving up-to-date information, specific data, or detailed backgro
         response.raise_for_status()
         return response.json()
 
-    def init_tool(self) -> Tool:
-        return Tool(
-            function=self._search_with_jina,
-            name=self.name,
-            description=self.description,
-        )
-
 
 class JinaReaderTool(LightBlueTool):
     def __init__(self):
@@ -104,7 +89,7 @@ class JinaReaderTool(LightBlueTool):
         self.description = """Reads web pages using Jina. Results are in Markdown format. Use this tool to forcus on the content of the page."""
         self.client = httpx.AsyncClient()
 
-    async def _read_web(
+    async def call(
         self,
         url: Annotated[str, Field(description="URL of the web page to read")],
     ) -> str:
@@ -120,13 +105,6 @@ class JinaReaderTool(LightBlueTool):
         )
         response.raise_for_status()
         return response.text
-
-    def init_tool(self) -> Tool:
-        return Tool(
-            function=self._read_web,
-            name=self.name,
-            description=self.description,
-        )
 
 
 @hookimpl

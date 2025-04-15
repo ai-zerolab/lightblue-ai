@@ -3,7 +3,6 @@ from typing import Annotated
 import httpx
 from pydantic import Field
 from pydantic_ai import BinaryContent, RunContext
-from pydantic_ai.tools import Tool
 
 from lightblue_ai.settings import Settings
 from lightblue_ai.tools.base import LightBlueTool, Scope
@@ -72,7 +71,7 @@ class ScreenshotTool(LightBlueTool):
 
         self.urlbox = UrlboxAPI(self.settings.urlbox_api_key)
 
-    async def _screenshot(
+    async def call(
         self,
         ctx: RunContext[PendingMessage],
         url: Annotated[str, Field(description="URL of the web page to take a screenshot of")],
@@ -86,13 +85,6 @@ class ScreenshotTool(LightBlueTool):
             return "File content added to context, will provided in next user prompt"
         else:
             return data
-
-    def init_tool(self) -> Tool:
-        return Tool(
-            function=self._screenshot,
-            name=self.name,
-            description=self.description,
-        )
 
 
 @hookimpl
