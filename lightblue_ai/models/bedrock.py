@@ -551,7 +551,7 @@ class BedrockStreamedResponse(StreamedResponse):
                     maybe_event = self._parts_manager.handle_tool_call_delta(
                         vendor_part_id=index,
                         tool_name=tool_use.get("name"),
-                        args=tool_use.get("input") or None,  # https://github.com/pydantic/pydantic-ai/pull/1515
+                        args=tool_use.get("input") or "{}",  # https://github.com/pydantic/pydantic-ai/pull/1515
                         tool_call_id=tool_id,
                     )
                     if maybe_event:
