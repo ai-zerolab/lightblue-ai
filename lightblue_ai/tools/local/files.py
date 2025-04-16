@@ -1,8 +1,12 @@
 import fnmatch
+import io
+import math
 import re
 from pathlib import Path
 from typing import Annotated, Any
 
+import imageio.v3 as iio
+import numpy as np
 from pydantic import Field
 from pydantic_ai import BinaryContent, RunContext
 
@@ -364,9 +368,18 @@ class ViewTool(LightBlueTool, MediaMixin):
             # Check if the file is likely binary based on extension
             if path.suffix.lower() in self.binary_extensions:
                 # Return binary content for binary files
-                with path.open("rb") as f:
-                    content = f.read()
-                data = BinaryContent(data=content, media_type=self._get_mime_type(path))
+                media_type = self._get_mime_type(path)
+                if media_type.startswith("image/"):
+                    """
+                    If it's image is too large and needs to be resized
+                    https://platform.openai.com/docs/guides/images?api-mode=chat#image-input-requirements
+                    https://docs.anthropic.com/en/docs/build-with-claude/vision#evaluate-image-size
+                    """
+                    content = self._resized_image(path)
+                else:
+                    with path.open("rb") as f:
+                        content = f.read()
+                data = BinaryContent(data=content, media_type=media_type)
                 if ctx.deps.multi_turn:
                     ctx.deps.add(data)
                     return "File content added to context, will provided in next user prompt"
@@ -400,6 +413,94 @@ class ViewTool(LightBlueTool, MediaMixin):
 
         except Exception as e:
             return f"Error reading file: {e!s}"
+
+    def _resized_image(  # noqa: C901
+        self,
+        file: Path,
+        max_size: int = 1092 * 1092,
+    ) -> bytes:
+        """Resize an image while maintaining original proportions.
+
+        If the image is already smaller than max_size (in total pixels),
+        it will be returned unchanged. Otherwise, it will be resized
+        proportionally so that width * height <= max_size.
+
+        Args:
+            file: Path to the image file
+            max_size: Maximum number of pixels (width * height)
+
+        Returns:
+            The resized image as bytes
+
+        TODO: Not tested with gif and webp
+        """
+        try:
+            # Read the image using imageio
+            img = iio.imread(file)
+
+            # Get current dimensions
+            height, width = img.shape[:2]
+            current_size = width * height
+
+            # If image is already smaller than max_size, return it unchanged
+            if current_size <= max_size:
+                return file.read_bytes()
+
+            # Calculate the scaling factor to maintain proportions
+            scale_factor = math.sqrt(max_size / current_size)
+
+            # Calculate new dimensions
+            new_width = int(width * scale_factor)
+            new_height = int(height * scale_factor)
+
+            # Create output array with new dimensions
+            if len(img.shape) == 3 and img.shape[2] == 4:  # RGBA image
+                resized_img = np.zeros((new_height, new_width, 4), dtype=img.dtype)
+            elif len(img.shape) == 3:  # RGB image
+                resized_img = np.zeros((new_height, new_width, 3), dtype=img.dtype)
+            else:  # Grayscale image
+                resized_img = np.zeros((new_height, new_width), dtype=img.dtype)
+
+            # Calculate scaling ratios
+            x_ratio = width / new_width
+            y_ratio = height / new_height
+
+            # Perform resizing using numpy (nearest neighbor approach)
+            for y in range(new_height):
+                for x in range(new_width):
+                    src_x = min(width - 1, int(x * x_ratio))
+                    src_y = min(height - 1, int(y * y_ratio))
+                    resized_img[y, x] = img[src_y, src_x]
+
+            # Convert the resized image back to bytes
+            output_bytes = io.BytesIO()
+
+            # Get the file extension and use it to determine the format
+            file_ext = file.suffix.lower()
+            if file_ext in (".jpg", ".jpeg"):
+                ext = "JPEG"
+            elif file_ext == ".png":
+                ext = "PNG"
+            elif file_ext == ".gif":
+                ext = "GIF"
+            elif file_ext == ".bmp":
+                ext = "BMP"
+            elif file_ext == ".webp":
+                ext = "WEBP"
+            else:
+                # Default to PNG if format can't be determined
+                ext = "PNG"
+
+            # Write the image to the BytesIO object with explicit format
+            iio.imwrite(output_bytes, resized_img, extension=f".{ext.lower()}")
+
+            # Get the bytes from the BytesIO object
+            return output_bytes.getvalue()
+
+        except Exception as e:
+            logger.warning(f"Failed to resize image: {e}")
+            # Return original content if resizing fails
+            return file.read_bytes()
 
 
 class EditTool(LightBlueTool):
