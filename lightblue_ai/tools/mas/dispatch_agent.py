@@ -9,13 +9,13 @@ from lightblue_ai.models import infer_model
 from lightblue_ai.settings import Settings
 from lightblue_ai.tools.base import LightBlueTool, Scope
 from lightblue_ai.tools.extensions import hookimpl
-from lightblue_ai.tools.local.media_mixin import MediaMixin
 from lightblue_ai.tools.manager import LightBlueToolManager
+from lightblue_ai.tools.media_mixin import MediaMixin
 
 
 class DispatchAgentTool(LightBlueTool, MediaMixin):
     def __init__(self, manager: LightBlueToolManager):
-        self.name = "dispatch_agent"
+        self.name = "context_agent"
         self.settings = Settings()
         self.scopes = [Scope.exec]
         self.manager = manager
@@ -48,12 +48,13 @@ Usage notes:
             ),
         ] = None,
     ) -> str:
-        tools = self.manager.get_sub_agent_tools()
+        model_name = self.settings.sub_agent_model or self.settings.default_model
+        max_description_length = 1000 if "anthropic" in model_name else None
 
         self.agent = Agent(
-            infer_model(self.settings.sub_agent_model or self.settings.default_model),
+            infer_model(model_name),
             system_prompt=system_prompt,
-            tools=tools,
+            tools=self.manager.get_sub_agent_tools(max_description_length=max_description_length),
         )
 
         attatchments = [
@@ -68,13 +69,16 @@ Usage notes:
                 # Return binary content for binary files
                 with path.open("rb") as f:
                     content = f.read()
+                media_type = self._get_mime_type(path)
+                if media_type.startswith("image/"):
+                    content = self._resized_image(content)
                 data = BinaryContent(data=content, media_type=self._get_mime_type(path))
                 attatchment_data.append(data)
                 logger.info(f"{path} attatchment added")
         return (await self.agent.run([*attatchment_data, objective])).data
 
 
-class ReflactionAgentTool(LightBlueTool, MediaMixin):
+class ReflactionAgentTool(DispatchAgentTool):
     def __init__(self, manager: LightBlueToolManager):
         self.name = "reflaction_agent"
         self.settings = Settings()
@@ -101,43 +105,6 @@ Usage notes:
 7. The reflection agent can evaluate code, writing, plans, decisions, and other outputs, but cannot execute code or make changes to files.
 8. For maximum value, include specific questions or concerns you want the reflection agent to address in its evaluation.
 """
-
-    async def call(
-        self,
-        system_prompt: Annotated[str, Field(description="System prompt for the agent.")],
-        objective: Annotated[str, Field(description="The objective to achieve.")],
-        attatchments: Annotated[
-            list[str] | None,
-            Field(
-                default=None,
-                description="A list of file paths to attach to the agent.",
-            ),
-        ] = None,
-    ) -> str:
-        tools = self.manager.get_all_tools()
-
-        self.agent = Agent(
-            infer_model(self.settings.reflection_agent_model or self.settings.default_model),
-            system_prompt=system_prompt,
-            tools=tools,
-        )
-
-        attatchments = [
-            Path(a).expanduser().resolve().absolute()
-            for a in attatchments or []
-            if Path(a).exists() and Path(a).is_file()
-        ]
-
-        attatchment_data = []
-        for path in attatchments:
-            if path.suffix.lower() in self.binary_extensions:
-                # Return binary content for binary files
-                with path.open("rb") as f:
-                    content = f.read()
-                data = BinaryContent(data=content, media_type=self._get_mime_type(path))
-                attatchment_data.append(data)
-                logger.info(f"{path} attatchment added")
-        return (await self.agent.run([*attatchment_data, objective])).data
 
 
 @hookimpl

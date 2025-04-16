@@ -64,9 +64,13 @@ class UrlboxAPI:
 
 class ScreenshotTool(LightBlueTool):
     def __init__(self):
-        self.name = "screenshot"
+        self.name = "screenshot_urlbox"
         self.scopes = [Scope.web]
-        self.description = "Take screenshot of a web page. For images, you should use the `save_web` tool to download the image then use `view` to view it."
+        self.description = (
+            "Take screenshot of a web page via URLbox API. "
+            "For images, you should use the `save_web` tool to download the image then use `view` to view it. "
+            "For local html, use `screenshot_playwright` to take screenshot for reference or review."
+        )
         self.settings = Settings()
 
         self.urlbox = UrlboxAPI(self.settings.urlbox_api_key)
@@ -80,11 +84,7 @@ class ScreenshotTool(LightBlueTool):
             data=await self.urlbox._get_screenshot(url),
             media_type="image/png",
         )
-        if ctx.deps.multi_turn:
-            ctx.deps.add(data)
-            return "File content added to context, will provided in next user prompt"
-        else:
-            return data
+        return ctx.deps.use_tool_return(data)
 
 
 @hookimpl

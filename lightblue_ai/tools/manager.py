@@ -35,8 +35,8 @@ class QueryTool(LightBlueTool):
 
 def fix_tool(func):
     @functools.wraps(func)
-    def wrapper(self: LightBlueToolManager):
-        r = func(self)
+    def wrapper(self: LightBlueToolManager, *args, **kwargs):
+        r = func(self, *args, **kwargs)
         self._truncate_tool_description(r)
         self._with_strict(r)
         return r
@@ -70,15 +70,16 @@ class LightBlueToolManager:
         self.max_description_length = max_description_length
         self.strict = strict
 
-    def _truncate_tool_description(self, tools: list[Tool]) -> None:
-        if not self.max_description_length:
+    def _truncate_tool_description(self, tools: list[Tool], max_description_length: int | None = None) -> None:
+        max_description_length = max_description_length or self.max_description_length
+        if not max_description_length:
             return
 
         truncated_reminder = "... (truncated)"
         for tool in tools:
-            if len(tool.description) > self.max_description_length:
+            if len(tool.description) > max_description_length:
                 tool.description = (
-                    tool.description[: self.max_description_length - len(truncated_reminder)] + truncated_reminder
+                    tool.description[: max_description_length - len(truncated_reminder)] + truncated_reminder
                 )
 
     def _with_strict(self, tools: list[Tool]) -> None:
@@ -142,8 +143,11 @@ class LightBlueToolManager:
         self._registed_instance.append(instance)
 
     @fix_tool
-    def get_sub_agent_tools(self) -> list[Tool]:
-        return [i.init_tool() for i in self._registed_instance if i.is_read_tool() or i.is_web_tool()]
+    def get_sub_agent_tools(self, max_description_length: int | None = None) -> list[Tool]:
+        r = [i.init_tool() for i in self._registed_instance if i.is_read_tool() or i.is_web_tool()]
+        if max_description_length:
+            self._truncate_tool_description(r, max_description_length)
+        return r
 
     @fix_tool
     def get_read_tools(self) -> list[Tool]:

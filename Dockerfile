@@ -13,7 +13,7 @@ COPY uv.lock /app/uv.lock
 COPY pyproject.toml /app/pyproject.toml
 
 # Install dependencies
-RUN uv sync --frozen --no-install-project
+RUN uv sync --frozen --no-install-project && uv tool run playwright install
 
 # Copy the project into the image
 COPY . /app

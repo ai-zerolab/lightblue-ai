@@ -98,7 +98,7 @@ BASH, Executes the given Bash command in a persistent shell session with optiona
 
 - `command` is a **required** parameter.
 - Optional timeout (in milliseconds) can be set, with a **maximum of 600,000 ms (10 minutes)**. Default is **30 minutes**.
-- **DO NOT** use `find` and `grep` for searching—use `GrepTool`, `GlobTool`, or `dispatch_agent` instead.
+- **DO NOT** use `find` and `grep` for searching—use `GrepTool`, `GlobTool`, or `context_agent` instead.
 - **DO NOT** use `cat`, `head`, `tail`, or `ls` to read files—use `View` and `LS`.
 - Multiple commands should be connected using `;` or `&&` **instead of** line breaks (line breaks can be used in strings).
 - **Persistent Shell Session**: Environment variables, virtual environments, and current directories persist across sessions.
@@ -214,9 +214,11 @@ Use this tool to read files and images from the web.
 Use `read_web` related tools if you need to read web pages. Only use this tool if you need to view it directly.
 , {'additionalProperties': False, 'properties': {'url': {'description': 'URL of the web resource to view', 'type': 'string'}}, 'required': ['url'], 'type': 'object'}
 
+screenshot_playwright, Take screenshot of a web page. For images, you should use the `save_web` tool to download the image then use `view` to view it. For local html, use this tool to take screenshot for reference or review., {'additionalProperties': False, 'properties': {'path': {'description': 'URL of the web page or local html to take a screenshot of.\\n- For local html: `file:///path/to/file.html`\\n- For web page: `https://example.com`\\n', 'type': 'string'}}, 'required': ['path'], 'type': 'object'}
+
 save_web_to_file, Downloads files from the web (HTML, images, documents, etc.) and saves them to the specified path. Supports various file types including HTML, PNG, JPEG, PDF, and more. Use `read_web` related tools if you need to read web pages. Only use this tool if you need to download files from the internet.Use `view_web_file` if you want to view files from the internet directly., {'additionalProperties': False, 'properties': {'url': {'description': 'URL of the web resource to download', 'type': 'string'}, 'save_path': {'description': 'Path where the file should be saved', 'type': 'string'}}, 'required': ['url', 'save_path'], 'type': 'object'}
 
-dispatch_agent, Launch a new agent that has access to the following tools: GlobTool, GrepTool, LS, View and others for searching information.
+context_agent, Launch a new agent that has access to the following tools: GlobTool, GrepTool, LS, View and others for searching information.
 
 When you are searching for a keyword or file and are not confident that you will find the right match on the first try, use this tool to perform the search for you. For example:
 

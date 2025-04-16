@@ -47,7 +47,7 @@ class BashTool(LightBlueTool):
 
 - `command` is a **required** parameter.
 - Optional timeout (in milliseconds) can be set, with a **maximum of 600,000 ms (10 minutes)**. Default is **30 minutes**.
-- **DO NOT** use `find` and `grep` for searching—use `GrepTool`, `GlobTool`, or `dispatch_agent` instead.
+- **DO NOT** use `find` and `grep` for searching—use `GrepTool`, `GlobTool`, or `context_agent` instead.
 - **DO NOT** use `cat`, `head`, `tail`, or `ls` to read files—use `View` and `LS`.
 - Multiple commands should be connected using `;` or `&&` **instead of** line breaks (line breaks can be used in strings).
 - **Persistent Shell Session**: Environment variables, virtual environments, and current directories persist across sessions.

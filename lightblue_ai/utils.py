@@ -30,3 +30,12 @@ class PendingMessage(BaseModel):
 
     def has_messages(self):
         return bool(len(self.messages))
+
+    def use_tool_return(self, data: BinaryContent) -> BinaryContent | str:
+        if self.multi_turn:
+            self.add(data)
+            return "File content added to context, will provided in next user prompt"
+        if self.tool_return_data:
+            return data
+        else:
+            return "Use `context_agent` tool to read binary files. Place the file in `attatchments` field of `context_agent` tool."
