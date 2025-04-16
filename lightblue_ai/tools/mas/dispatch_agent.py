@@ -74,6 +74,73 @@ Usage notes:
         return (await self.agent.run([*attatchment_data, objective])).data
 
 
+class ReflactionAgentTool(LightBlueTool, MediaMixin):
+    def __init__(self, manager: LightBlueToolManager):
+        self.name = "reflaction_agent"
+        self.settings = Settings()
+        self.scopes = [Scope.exec]
+        self.manager = manager
+        self.description = """Launch a reflection agent that evaluates completed tasks and provides improvement feedback.
+
+When you have completed a task and want to verify its correctness, quality, or identify potential improvements, use this tool to perform an objective assessment. The reflection agent will:
+
+- Analyze the completed task against the original requirements
+- Identify any errors, omissions, or potential issues
+- Evaluate the quality and effectiveness of the solution
+- Suggest specific improvements or alternative approaches
+- Provide a confidence score regarding the correctness of the solution
+
+Usage notes:
+
+1. Provide the reflection agent with: (a) the original task requirements, (b) the completed solution, and (c) any specific evaluation criteria you want addressed.
+2. The agent will return a single comprehensive evaluation message containing its analysis and recommendations.
+3. The evaluation result is not visible to the user automatically. To share insights with the user, you should send a text message summarizing the key findings.
+4. Each reflection agent invocation is stateless. Your prompt should contain all the context needed for a thorough evaluation, including the complete task description and solution.
+5. The reflection agent excels at identifying logical errors, edge cases, optimizations, and alignment with requirements that might have been overlooked during initial implementation.
+6. If multiple evaluation perspectives are needed, launch multiple reflection agents concurrently with different evaluation criteria.
+7. The reflection agent can evaluate code, writing, plans, decisions, and other outputs, but cannot execute code or make changes to files.
+8. For maximum value, include specific questions or concerns you want the reflection agent to address in its evaluation.
+"""
+
+    async def call(
+        self,
+        system_prompt: Annotated[str, Field(description="System prompt for the agent.")],
+        objective: Annotated[str, Field(description="The objective to achieve.")],
+        attatchments: Annotated[
+            list[str] | None,
+            Field(
+                default=None,
+                description="A list of file paths to attach to the agent.",
+            ),
+        ] = None,
+    ) -> str:
+        tools = self.manager.get_all_tools()
+
+        self.agent = Agent(
+            infer_model(self.settings.reflection_agent_model or self.settings.default_model),
+            system_prompt=system_prompt,
+            tools=tools,
+        )
+
+        attatchments = [
+            Path(a).expanduser().resolve().absolute()
+            for a in attatchments or []
+            if Path(a).exists() and Path(a).is_file()
+        ]
+
+        attatchment_data = []
+        for path in attatchments:
+            if path.suffix.lower() in self.binary_extensions:
+                # Return binary content for binary files
+                with path.open("rb") as f:
+                    content = f.read()
+                data = BinaryContent(data=content, media_type=self._get_mime_type(path))
+                attatchment_data.append(data)
+                logger.info(f"{path} attatchment added")
+        return (await self.agent.run([*attatchment_data, objective])).data
+
+
 @hookimpl
 def register(manager):
     manager.register(DispatchAgentTool(manager))
+    manager.register(ReflactionAgentTool(manager))
