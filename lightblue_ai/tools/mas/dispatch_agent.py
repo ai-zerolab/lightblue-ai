@@ -48,12 +48,13 @@ Usage notes:
             ),
         ] = None,
     ) -> str:
-        tools = self.manager.get_sub_agent_tools()
+        model_name = self.settings.sub_agent_model or self.settings.default_model
+        max_description_length = 1000 if "anthropic" in model_name else None
 
         self.agent = Agent(
-            infer_model(self.settings.sub_agent_model or self.settings.default_model),
+            infer_model(model_name),
             system_prompt=system_prompt,
-            tools=tools,
+            tools=self.manager.get_sub_agent_tools(max_description_length=max_description_length),
         )
 
         attatchments = [
