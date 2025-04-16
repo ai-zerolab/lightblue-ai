@@ -380,13 +380,7 @@ class ViewTool(LightBlueTool, MediaMixin):
                     with path.open("rb") as f:
                         content = f.read()
                 data = BinaryContent(data=content, media_type=media_type)
-                if ctx.deps.multi_turn:
-                    ctx.deps.add(data)
-                    return "File content added to context, will provided in next user prompt"
-                if ctx.deps.tool_return_data:
-                    return data
-                else:
-                    return "Use `dispatch_agent` tool to read binary files. Place the file in `attatchments` field of `dispatch_agent` tool."
+                return ctx.deps.use_tool_return(data)
 
             # Read text file
             with path.open("r", encoding="utf-8", errors="replace") as f:

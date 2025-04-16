@@ -80,3 +80,7 @@ brew install poppler
 #### Linux
 
 Most distros ship with pdftoppm and pdftocairo. If they are not installed, refer to your package manager to install poppler-utils. e.g. `apt-get install poppler-utils`
+
+### HTML View as Image
+
+you need to run `playwright install` or `uv tool run playwright install` to install chromium and dependencies.
