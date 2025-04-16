@@ -13,7 +13,7 @@ def test_manager():
         "convert_pdf_to_images",
         "Replace",
         "View",
-        "dispatch_agent",
+        "context_agent",
         "save_web_to_file",
         "thinking",
         "convert_to_markdown",
@@ -38,7 +38,7 @@ def test_manager():
         "convert_to_markdown",
     }
     write_tools = {"Edit", "Replace"}
-    exec_tools = {"BASH", "dispatch_agent"}
+    exec_tools = {"BASH", "context_agent"}
     generation_tools = set()
 
     assert all_tools.issubset({i.name for i in manager.get_all_tools()})
@@ -66,7 +66,7 @@ def test_strict_manager():
         "convert_pdf_to_images",
         "Replace",
         "View",
-        "dispatch_agent",
+        "context_agent",
         "save_web_to_file",
         "thinking",
         "convert_to_markdown",
@@ -91,7 +91,7 @@ def test_strict_manager():
         "convert_to_markdown",
     }
     write_tools = {"Edit", "Replace"}
-    exec_tools = {"BASH", "dispatch_agent"}
+    exec_tools = {"BASH", "context_agent"}
     generation_tools = set()
 
     assert all_tools.issubset({i.name for i in manager.get_all_tools()})

@@ -38,4 +38,4 @@ class PendingMessage(BaseModel):
         if self.tool_return_data:
             return data
         else:
-            return "Use `dispatch_agent` tool to read binary files. Place the file in `attatchments` field of `dispatch_agent` tool."
+            return "Use `context_agent` tool to read binary files. Place the file in `attatchments` field of `context_agent` tool."
