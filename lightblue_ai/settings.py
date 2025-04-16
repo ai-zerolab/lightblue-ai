@@ -9,6 +9,7 @@ load_dotenv(Path.cwd() / ".env")
 class Settings(BaseSettings):
     default_model: str | None = None
     sub_agent_model: str | None = None
+    reflection_agent_model: str | None = None
     enable_multi_turn: bool = True
     enable_bash_tool: bool = True
 

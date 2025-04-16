@@ -233,6 +233,28 @@ Usage notes:
 5. IMPORTANT: The agent cannot use Bash, Replace, Edit, so it cannot modify files. If you need to use these tools, use them directly instead of going through the agent.
 , {'additionalProperties': False, 'properties': {'system_prompt': {'description': 'System prompt for the agent.', 'type': 'string'}, 'objective': {'description': 'The objective to achieve.', 'type': 'string'}, 'attatchments': {'anyOf': [{'items': {'type': 'string'}, 'type': 'array'}, {'type': 'null'}], 'default': None, 'description': 'A list of file paths to attach to the agent.'}}, 'required': ['system_prompt', 'objective'], 'type': 'object'}
 
+reflaction_agent, Launch a reflection agent that evaluates completed tasks and provides improvement feedback.
+
+When you have completed a task and want to verify its correctness, quality, or identify potential improvements, use this tool to perform an objective assessment. The reflection agent will:
+
+- Analyze the completed task against the original requirements
+- Identify any errors, omissions, or potential issues
+- Evaluate the quality and effectiveness of the solution
+- Suggest specific improvements or alternative approaches
+- Provide a confidence score regarding the correctness of the solution
+
+Usage notes:
+
+1. Provide the reflection agent with: (a) the original task requirements, (b) the completed solution, and (c) any specific evaluation criteria you want addressed.
+2. The agent will return a single comprehensive evaluation message containing its analysis and recommendations.
+3. The evaluation result is not visible to the user automatically. To share insights with the user, you should send a text message summarizing the key findings.
+4. Each reflection agent invocation is stateless. Your prompt should contain all the context needed for a thorough evaluation, including the complete task description and solution.
+5. The reflection agent excels at identifying logical errors, edge cases, optimizations, and alignment with requirements that might have been overlooked during initial implementation.
+6. If multiple evaluation perspectives are needed, launch multiple reflection agents concurrently with different evaluation criteria.
+7. The reflection agent can evaluate code, writing, plans, decisions, and other outputs, but cannot execute code or make changes to files.
+8. For maximum value, include specific questions or concerns you want the reflection agent to address in its evaluation.
+, {'additionalProperties': False, 'properties': {'system_prompt': {'description': 'System prompt for the agent.', 'type': 'string'}, 'objective': {'description': 'The objective to achieve.', 'type': 'string'}, 'attatchments': {'anyOf': [{'items': {'type': 'string'}, 'type': 'array'}, {'type': 'null'}], 'default': None, 'description': 'A list of file paths to attach to the agent.'}}, 'required': ['system_prompt', 'objective'], 'type': 'object'}
+
 celsius_to_fahrenheit, Convert Celsius to Fahrenheit.
 
     Args:
