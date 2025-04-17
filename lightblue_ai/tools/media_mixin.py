@@ -6,6 +6,7 @@ import imageio.v3 as iio
 import numpy as np
 
 from lightblue_ai.log import logger
+from lightblue_ai.settings import Settings
 
 
 class MediaMixin:
@@ -101,6 +102,9 @@ class MediaMixin:
 
         TODO: Not tested with gif and webp
         """
+        if not Settings().auto_resize_images:
+            return file.read_bytes() if isinstance(file, Path) else file
+
         try:
             # Read the image using imageio
             img = iio.imread(file)
