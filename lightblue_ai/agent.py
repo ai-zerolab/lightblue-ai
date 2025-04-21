@@ -53,6 +53,7 @@ class LightBlueAgent[OutputDataT]:
         logger.info(f"Using model: {model_name}")
 
         self.enable_multi_turn = self.settings.enable_multi_turn
+        system_prompt = system_prompt or get_system_prompt()
         if "anthropic" not in model_name and not isinstance(model, FunctionModel):
             max_description_length = max_description_length or 1000
             self.tool_return_data = False
@@ -62,11 +63,18 @@ class LightBlueAgent[OutputDataT]:
             self.tool_return_data = True
             # Disable multi-turn mode for anthropic model
             self.enable_multi_turn = False
+
         logger.info(
             f"Current multi-turn mode: {self.enable_multi_turn}, tool return data: {self.tool_return_data}, max description length: {max_description_length}"
         )
 
         self.tool_manager = LightBlueToolManager(max_description_length=max_description_length, strict=strict)
+        if max_description_length:
+            system_prompt = "\n".join([
+                system_prompt,
+                "## The following tools are available to you:",
+                self.tool_manager.describe_all_tools(),
+            ])
         self.agent = Agent[result_type](
             infer_model(model),
             output_type=(
@@ -79,7 +87,7 @@ class LightBlueAgent[OutputDataT]:
                 if result_type is not str
                 else str
             ),
-            system_prompt=system_prompt or get_system_prompt(),
+            system_prompt=system_prompt,
             tools=[*tools, *self.tool_manager.get_all_tools()],
             mcp_servers=[*mcp_servers, *get_mcp_servers()],
             retries=retries,
