@@ -79,6 +79,8 @@ class Mupdf4LLMTool(LightBlueTool):
         self.description = (
             "Converts a PDF file to markdown format via pymupdf4llm. "
             "This is the best tool to use for PDF file. You should always use this tool first. "
+            "This tool will also convert the PDF to images and save them in the `image_path` directory. "
+            "You can View the images using the `view` tool. "
         )
 
     async def call(
