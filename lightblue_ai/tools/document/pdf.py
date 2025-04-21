@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Annotated, Any
 
+import pymupdf4llm
 from pdf2image import convert_from_path
 from pydantic import Field
 
@@ -71,6 +72,39 @@ class Pdf2ImageTool(LightBlueTool):
             }
 
 
+class Mupdf4LLMTool(LightBlueTool):
+    def __init__(self):
+        self.name = "convert_pdf_to_markdown"
+        self.scopes = [Scope.read]
+        self.description = (
+            "Converts a PDF file to markdown format via pymupdf4llm. "
+            "This is the best tool to use for PDF file. You should always use this tool first. "
+        )
+
+    async def call(
+        self,
+        file_path: Annotated[str, Field(description="Absolute path to the PDF file to convert")],
+    ) -> dict[str, Any]:
+        file_path: Path = Path(file_path).expanduser().resolve()
+        if not file_path.exists():
+            return {
+                "error": f"File not found: {file_path}",
+                "success": False,
+            }
+
+        try:
+            return {
+                "success": True,
+                "markdown": pymupdf4llm.to_markdown(file_path),
+            }
+        except Exception as e:
+            return {
+                "error": f"Failed to convert PDF to markdown: {e!s}",
+                "success": False,
+            }
+
+
 @hookimpl
 def register(manager):
     manager.register(Pdf2ImageTool())
+    manager.register(Mupdf4LLMTool())

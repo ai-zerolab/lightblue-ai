@@ -208,6 +208,8 @@ Use this tool when the file cannot be read with View tool
 
 convert_pdf_to_images, Converts a PDF file to multiple PNG image files. The file_path parameter must be an absolute path to a PDF file. The output_path parameter is optional and will default to the same directory as the input file if not provided.For PDF file, try convert_to_markdown tool first. For using this tool, you should to use View tool to view the images., {'additionalProperties': False, 'properties': {'file_path': {'description': 'Absolute path to the PDF file to convert', 'type': 'string'}, 'output_path': {'anyOf': [{'type': 'string'}, {'type': 'null'}], 'description': 'Optional. Absolute path to the directory to save the images. If not provided, the images will be saved in the same directory as the PDF file.'}}, 'required': ['file_path', 'output_path'], 'type': 'object'}
 
+convert_pdf_to_markdown, Converts a PDF file to markdown format via pymupdf4llm. This is the best tool to use for PDF file. You should always use this tool first. , {'additionalProperties': False, 'properties': {'file_path': {'description': 'Absolute path to the PDF file to convert', 'type': 'string'}}, 'required': ['file_path'], 'type': 'object'}
+
 view_web_file, Reads a file or image from the web.
 For image files, the tool will display the image for you. If you cannot read image via tool, just call the tool and it will display in next user prompt, you can wait for the next prompt.
 Use this tool to read files and images from the web.
