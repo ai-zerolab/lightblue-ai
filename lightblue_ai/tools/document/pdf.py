@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Annotated, Any
 
+import pymupdf4llm
 from pdf2image import convert_from_path
 from pydantic import Field
 
@@ -71,6 +72,48 @@ class Pdf2ImageTool(LightBlueTool):
             }
 
 
+class Mupdf4LLMTool(LightBlueTool):
+    def __init__(self):
+        self.name = "convert_pdf_to_markdown"
+        self.scopes = [Scope.read]
+        self.description = (
+            "Converts a PDF file to markdown format via pymupdf4llm. "
+            "This is the best tool to use for PDF file. You should always use this tool first. "
+            "This tool will also convert the PDF to images and save them in the `image_path` directory. "
+            "You can View the images using the `view` tool. "
+        )
+
+    async def call(
+        self,
+        file_path: Annotated[str, Field(description="Absolute path to the PDF file to convert")],
+        image_path: Annotated[
+            str | None,
+            Field(
+                description="Optional. Absolute path to the directory to save the images. "
+                "If not provided, the images will be saved in the same directory as the PDF file."
+            ),
+        ] = None,
+    ) -> dict[str, Any]:
+        file_path: Path = Path(file_path).expanduser().resolve()
+        if not file_path.exists():
+            return {
+                "error": f"File not found: {file_path}",
+                "success": False,
+            }
+        image_path = Path(image_path).expanduser().resolve() if image_path else file_path.parent
+        try:
+            return {
+                "success": True,
+                "markdown": pymupdf4llm.to_markdown(file_path, write_images=True, image_path=image_path.as_posix()),
+            }
+        except Exception as e:
+            return {
+                "error": f"Failed to convert PDF to markdown: {e!s}",
+                "success": False,
+            }
+
+
 @hookimpl
 def register(manager):
     manager.register(Pdf2ImageTool())
+    manager.register(Mupdf4LLMTool())
