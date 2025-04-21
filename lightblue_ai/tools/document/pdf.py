@@ -84,6 +84,13 @@ class Mupdf4LLMTool(LightBlueTool):
     async def call(
         self,
         file_path: Annotated[str, Field(description="Absolute path to the PDF file to convert")],
+        image_path: Annotated[
+            str | None,
+            Field(
+                description="Optional. Absolute path to the directory to save the images. "
+                "If not provided, the images will be saved in the same directory as the PDF file."
+            ),
+        ] = None,
     ) -> dict[str, Any]:
         file_path: Path = Path(file_path).expanduser().resolve()
         if not file_path.exists():
@@ -91,11 +98,11 @@ class Mupdf4LLMTool(LightBlueTool):
                 "error": f"File not found: {file_path}",
                 "success": False,
             }
-
+        image_path = Path(image_path).expanduser().resolve() if image_path else file_path.parent
         try:
             return {
                 "success": True,
-                "markdown": pymupdf4llm.to_markdown(file_path),
+                "markdown": pymupdf4llm.to_markdown(file_path, write_images=True, image_path=image_path.as_posix()),
             }
         except Exception as e:
             return {
