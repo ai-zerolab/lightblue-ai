@@ -50,7 +50,12 @@ Usage notes:
     ) -> str:
         model_name = self.settings.sub_agent_model or self.settings.default_model
         max_description_length = 1000 if "anthropic" in model_name else None
-
+        if max_description_length:
+            system_prompt = "\n".join([
+                system_prompt,
+                "## The following tools are available to you:",
+                self.manager.describe_sub_agent_tools(),
+            ])
         self.agent = Agent(
             infer_model(model_name),
             system_prompt=system_prompt,

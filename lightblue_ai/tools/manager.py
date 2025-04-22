@@ -144,9 +144,15 @@ class LightBlueToolManager:
         logger.debug(f"Registering tool: {instance}")
         self._registed_instance.append(instance)
 
+    def _is_sub_agent_tool(self, tool: LightBlueTool) -> bool:
+        """
+        Check if the tool is a sub agent tool.
+        """
+        return tool.is_read_tool() or tool.is_web_tool()
+
     @fix_tool
     def get_sub_agent_tools(self, max_description_length: int | None = None) -> list[Tool]:
-        r = [i.init_tool() for i in self._registed_instance if i.is_read_tool() or i.is_web_tool()]
+        r = [i.init_tool() for i in self._registed_instance if self._is_sub_agent_tool(i)]
         if max_description_length:
             self._truncate_tool_description(r, max_description_length)
         return r
@@ -175,10 +181,23 @@ class LightBlueToolManager:
         """
         Describe all tools in the manager.
         """
-        tools = self.get_all_tools()
         return "\n".join([
             f"""### {tool.name}
+
 {tool.description}
 """
-            for tool in tools
+            for tool in self._registed_instance
+        ])
+
+    def describe_sub_agent_tools(self) -> str:
+        """
+        Describe all tools in the manager.
+        """
+        return "\n".join([
+            f"""### {tool.name}
+
+{tool.description}
+"""
+            for tool in self._registed_instance
+            if self._is_sub_agent_tool(tool)
         ])
