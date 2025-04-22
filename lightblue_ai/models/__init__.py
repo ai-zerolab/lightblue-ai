@@ -5,6 +5,7 @@ from lightblue_ai.models.anthropic import AnthropicModel as PatchedAnthropicMode
 from lightblue_ai.models.bedrock import (
     BedrockConverseModel as PatchedBedrockConverseModel,
 )
+from lightblue_ai.models.doubao import OpenAIModel as DoubaoModel
 
 
 def infer_model(model: str | Model):
@@ -16,5 +17,8 @@ def infer_model(model: str | Model):
 
     if model.startswith("anthropic:"):
         return PatchedAnthropicModel(model.lstrip("anthropic:"))
+
+    if model.startswith("openai:") and "doubao" in model:
+        return DoubaoModel(model.lstrip("openai:"))
 
     return legacy_infer_model(model)
