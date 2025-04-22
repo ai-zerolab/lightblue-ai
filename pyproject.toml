@@ -27,6 +27,7 @@ dependencies = [
     "markitdown[all]>=0.1.1",
     "mcp>=1.6.0",
     "numpy>=2.2.4",
+    "openai>=1.74.0",
     "pdf2image>=1.17.0",
     "pillow>=11.1.0, !=11.2.0",
     "playwright>=1.51.0",

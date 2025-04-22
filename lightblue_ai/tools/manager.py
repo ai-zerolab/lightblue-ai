@@ -3,8 +3,10 @@ from __future__ import annotations
 import functools
 import importlib
 from pathlib import Path
+from typing import Annotated
 
 import pluggy
+from pydantic import Field
 from pydantic_ai.tools import Tool
 
 import lightblue_ai.tools as tools_package
@@ -26,7 +28,7 @@ class QueryTool(LightBlueTool):
         self._manager = manager
         self.description = "For tool's description is truncated, before calling the tool you need to use this tool to get the full description of the tool."
 
-    async def call(self, tool_name: str) -> str:
+    async def call(self, tool_name: Annotated[str, Field(description="Name of the tool.")]) -> str:
         tool = self._manager.get_lightblue_tool(tool_name)
         if tool is None:
             return "No tool found"
@@ -168,3 +170,15 @@ class LightBlueToolManager:
     @fix_tool
     def get_all_tools(self) -> list[Tool]:
         return [i.init_tool() for i in self._registed_instance]
+
+    def describe_all_tools(self) -> str:
+        """
+        Describe all tools in the manager.
+        """
+        tools = self.get_all_tools()
+        return "\n".join([
+            f"""### {tool.name}
+{tool.description}
+"""
+            for tool in tools
+        ])
