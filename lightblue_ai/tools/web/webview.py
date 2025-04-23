@@ -55,7 +55,7 @@ Use `read_web` related tools if you need to read web pages. Only use this tool i
             }
 
 
-class WebPageViewTool(LightBlueTool):
+class WebPageViewTool(LightBlueTool, MediaMixin):
     def __init__(self):
         self.name = "screenshot_playwright"
         self.scopes = [Scope.web]
@@ -92,7 +92,7 @@ class WebPageViewTool(LightBlueTool):
                 # Load the local HTML file
                 await page.goto(path)
                 # Take the screenshot and return as bytes
-                screenshot_bytes = await page.screenshot(full_page=True)
+                screenshot_bytes = self._resized_image(await page.screenshot(full_page=True))
             except Exception as e:
                 await browser.close()
                 return {
