@@ -54,7 +54,7 @@ class LightBlueAgent[OutputDataT]:
 
         self.enable_multi_turn = self.settings.enable_multi_turn
         system_prompt = system_prompt or get_system_prompt()
-        if "anthropic" not in model_name and not isinstance(model, FunctionModel):
+        if "openrouter" not in model_name and "anthropic" not in model_name and not isinstance(model, FunctionModel):
             max_description_length = max_description_length or 1000
             self.tool_return_data = False
             self.enable_multi_turn = self.settings.enable_multi_turn
