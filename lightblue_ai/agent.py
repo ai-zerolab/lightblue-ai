@@ -69,7 +69,7 @@ class LightBlueAgent[OutputDataT]:
         )
 
         self.tool_manager = LightBlueToolManager(max_description_length=max_description_length, strict=strict)
-        if max_description_length:
+        if max_description_length and self.settings.append_tools_to_prompt:
             system_prompt = "\n".join([
                 system_prompt,
                 "## The following tools are available to you:",

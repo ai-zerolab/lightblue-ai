@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     enable_multi_turn: bool = True
     enable_bash_tool: bool = True
     auto_resize_images: bool = False
+    append_tools_to_prompt: bool = False
 
     jina_api_key: str | None = None
     tavily_api_key: str | None = None
