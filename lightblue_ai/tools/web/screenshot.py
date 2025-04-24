@@ -30,8 +30,8 @@ class UrlboxAPI:
         """
         request_body = {
             "url": url,
-            "width": 1600,
-            "height": 900,
+            "width": 1024,
+            "height": 1024,
             "thumb_width": 800,
             "format": "png",
             "hide_cookie_banners": True,

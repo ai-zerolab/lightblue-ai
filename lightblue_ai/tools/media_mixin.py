@@ -2,8 +2,7 @@ import io
 import math
 from pathlib import Path
 
-import imageio.v3 as iio
-import numpy as np
+from PIL import Image
 
 from lightblue_ai.log import logger
 from lightblue_ai.settings import Settings
@@ -82,7 +81,7 @@ class MediaMixin:
         suffix = path.suffix.lower()
         return extension_to_mime.get(suffix, "application/octet-stream")
 
-    def _resized_image(  # noqa: C901
+    def _resized_image(
         self,
         file: Path | bytes,
         max_size: int = 1092 * 1092,
@@ -94,23 +93,21 @@ class MediaMixin:
         proportionally so that width * height <= max_size.
 
         Args:
-            file: Path to the image file
+            file: Path to the image file or bytes
             max_size: Maximum number of pixels (width * height)
 
         Returns:
             The resized image as bytes
-
-        TODO: Not tested with gif and webp
         """
         if not Settings().auto_resize_images:
             return file.read_bytes() if isinstance(file, Path) else file
 
         try:
-            # Read the image using imageio
-            img = iio.imread(file)
+            # Open the image
+            img = Image.open(file) if isinstance(file, Path) else Image.open(io.BytesIO(file))
 
             # Get current dimensions
-            height, width = img.shape[:2]
+            width, height = img.size
             current_size = width * height
 
             # If image is already smaller than max_size, return it unchanged
@@ -124,51 +121,14 @@ class MediaMixin:
             new_width = int(width * scale_factor)
             new_height = int(height * scale_factor)
 
-            # Create output array with new dimensions
-            if len(img.shape) == 3 and img.shape[2] == 4:  # RGBA image
-                resized_img = np.zeros((new_height, new_width, 4), dtype=img.dtype)
-            elif len(img.shape) == 3:  # RGB image
-                resized_img = np.zeros((new_height, new_width, 3), dtype=img.dtype)
-            else:  # Grayscale image
-                resized_img = np.zeros((new_height, new_width), dtype=img.dtype)
-
-            # Calculate scaling ratios
-            x_ratio = width / new_width
-            y_ratio = height / new_height
-
-            # Perform resizing using numpy (nearest neighbor approach)
-            for y in range(new_height):
-                for x in range(new_width):
-                    src_x = min(width - 1, int(x * x_ratio))
-                    src_y = min(height - 1, int(y * y_ratio))
-                    resized_img[y, x] = img[src_y, src_x]
+            # Resize the image
+            resized_img = img.resize((new_width, new_height), Image.LANCZOS)
             logger.debug(f"Resized image from {width}x{height} to {new_width}x{new_height}")
+
             # Convert the resized image back to bytes
             output_bytes = io.BytesIO()
+            resized_img.save(output_bytes, format=img.format if img.format else "PNG")
 
-            # Get the file extension and use it to determine the format
-            if isinstance(file, Path):
-                file_ext = file.suffix.lower()
-                if file_ext in (".jpg", ".jpeg"):
-                    ext = "JPEG"
-                elif file_ext == ".png":
-                    ext = "PNG"
-                elif file_ext == ".gif":
-                    ext = "GIF"
-                elif file_ext == ".bmp":
-                    ext = "BMP"
-                elif file_ext == ".webp":
-                    ext = "WEBP"
-                else:
-                    # Default to PNG if format can't be determined
-                    ext = "PNG"
-            else:
-                ext = "PNG"
-
-            # Write the image to the BytesIO object with explicit format
-            iio.imwrite(output_bytes, resized_img, extension=f".{ext.lower()}")
-
-            # Get the bytes from the BytesIO object
             return output_bytes.getvalue()
 
         except Exception as e:
