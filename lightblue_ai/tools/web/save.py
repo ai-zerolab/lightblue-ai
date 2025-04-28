@@ -1,3 +1,5 @@
+import asyncio
+from pathlib import Path
 from typing import Annotated
 
 import httpx
@@ -21,8 +23,18 @@ class SaveWebTool(LightBlueTool):
 
     async def call(
         self,
+        urls: Annotated[list[str], Field(description="List of URLs to download")],
+        save_dir: Annotated[
+            str,
+            Field(description="Dir where the file should be saved"),
+        ],
+    ) -> list[dict[str, str]]:
+        return await asyncio.gather(*[self.downaload_one(url, save_dir) for url in urls])
+
+    async def downaload_one(
+        self,
         url: Annotated[str, Field(description="URL of the web resource to download")],
-        save_path: Annotated[str, Field(description="Path where the file should be saved")],
+        save_dir: Annotated[str, Field(description="Directory where the file should be saved")],
     ) -> dict[str, str]:
         """
         Download a file from a URL and save it to the specified path.
@@ -43,13 +55,13 @@ class SaveWebTool(LightBlueTool):
             content_type = response.headers.get("Content-Type", "")
 
             # Create directory if it doesn't exist
-            from pathlib import Path
 
-            save_path_obj = Path(save_path)
+            save_dir = Path(save_dir)
+            save_path_obj = Path(save_dir) / Path(url).name
             save_path_obj.parent.mkdir(parents=True, exist_ok=True)
 
             # Save the content to the specified path
-            with open(save_path, "wb") as f:
+            with save_path_obj.open("wb") as f:
                 f.write(response.content)
 
             # Get file size
@@ -64,15 +76,15 @@ class SaveWebTool(LightBlueTool):
             return {
                 "success": False,
                 "error": str(e),
-                "message": f"Failed to save file to {save_path}",
+                "message": f"Failed to save file to {save_path_obj.as_posix()}",
             }
         else:
             return {
                 "success": True,
-                "path": save_path,
+                "path": save_path_obj.as_posix(),
                 "size": file_size,
                 "content_type": content_type,
-                "message": f"File successfully saved to {save_path}",
+                "message": f"File successfully saved to {save_path_obj.as_posix()}",
             }
 
 
