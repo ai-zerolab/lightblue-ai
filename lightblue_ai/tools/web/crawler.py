@@ -107,6 +107,60 @@ class JinaReaderTool(LightBlueTool):
         return response.text
 
 
+class GoogleSearchTool(LightBlueTool):
+    def __init__(self):
+        self.name = "search_with_google"
+        self.settings = Settings()
+        self.scopes = [Scope.web]
+        self.description = """Performs web searches using Google. If the initial query is too broad or results are not ideal, the LLM can refine the search by progressively reducing keywords to improve accuracy.
+Useful for retrieving up-to-date information, specific data, or detailed background research.
+"""
+        self.client = httpx.AsyncClient()
+
+    async def call(
+        self,
+        query: Annotated[str, Field(description="The search query")],
+        start: Annotated[
+            int,
+            Field(
+                default=1,
+                description="The start index, as defaule num=10, start=11 for page 2",
+            ),
+        ] = 1,
+        num: Annotated[
+            int,
+            Field(default=10, description="The number of results to return, from 1 to 10"),
+        ] = 10,
+    ) -> list[dict[str, Any]] | dict[str, Any]:
+        if not 1 <= num <= 10:
+            return {
+                "success": False,
+                "error": "num must be between 1 and 10",
+            }
+        params = {
+            "q": query,
+            "start": start,
+            "num": num,
+            "key": self.settings.google_search_api_key,
+            "cx": self.settings.google_search_cx,
+        }
+
+        response = await self.client.get(
+            "https://www.googleapis.com/customsearch/v1",
+            params=params,
+            timeout=60,
+        )
+        try:
+            response.raise_for_status()
+        except httpx.HTTPStatusError as e:
+            return {
+                "success": False,
+                "error": f"HTTP error: {e!s}",
+                "message": "Failed to search with Google",
+            }
+        return response.json()["items"]
+
+
 @hookimpl
 def register(manager):
     settings = Settings()
@@ -115,3 +169,5 @@ def register(manager):
     if settings.jina_api_key:
         manager.register(JinaSearchTool())
         manager.register(JinaReaderTool())
+    if settings.google_search_api_key and settings.google_search_cx:
+        manager.register(GoogleSearchTool())
