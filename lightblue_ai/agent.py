@@ -54,15 +54,16 @@ class LightBlueAgent[OutputDataT]:
 
         self.enable_multi_turn = self.settings.enable_multi_turn
         system_prompt = system_prompt or get_system_prompt()
-        if "openrouter" not in model_name and "anthropic" not in model_name and not isinstance(model, FunctionModel):
-            max_description_length = max_description_length or 1000
-            self.tool_return_data = False
-            self.enable_multi_turn = self.settings.enable_multi_turn
-        else:
+        if ("anthropic" in model_name and "openrouter" not in model_name) or isinstance(model, FunctionModel):
             max_description_length = None
             self.tool_return_data = True
             # Disable multi-turn mode for anthropic model
             self.enable_multi_turn = False
+        else:
+            # OpenAI style API
+            max_description_length = max_description_length or 1000
+            self.tool_return_data = False
+            self.enable_multi_turn = self.settings.enable_multi_turn
 
         logger.info(
             f"Current multi-turn mode: {self.enable_multi_turn}, tool return data: {self.tool_return_data}, max description length: {max_description_length}"
