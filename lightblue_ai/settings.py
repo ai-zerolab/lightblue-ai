@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     bfl_api_key: str | None = None
     urlbox_api_key: str | None = None
     pixabay_api_key: str | None = None
+    google_search_cx: str | None = None
+    google_search_api_key: str | None = None
 
     mcp_config_path: str = (Path.cwd() / "./mcp.json").expanduser().resolve().absolute().as_posix()
 
