@@ -1043,8 +1043,6 @@ name = "lightblue-ai"
 version = "0.0.1"
 source = { editable = "." }
 dependencies = [
-    { name = "anthropic" },
-    { name = "anyio" },
     { name = "httpx" },
     { name = "jinja2" },
     { name = "loguru" },
@@ -1083,8 +1081,6 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "anthropic", specifier = ">=0.49.0" },
-    { name = "anyio", specifier = ">=4.9.0" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "jinja2", specifier = ">=3.1.6" },
     { name = "loguru", specifier = ">=0.7.3" },
