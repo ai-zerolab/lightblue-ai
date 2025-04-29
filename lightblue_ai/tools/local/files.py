@@ -4,13 +4,12 @@ from pathlib import Path
 from typing import Annotated, Any
 
 from pydantic import Field
-from pydantic_ai import BinaryContent, RunContext
+from pydantic_ai import BinaryContent
 
 from lightblue_ai.log import logger
 from lightblue_ai.tools.base import LightBlueTool, Scope
 from lightblue_ai.tools.extensions import hookimpl
 from lightblue_ai.tools.media_mixin import MediaMixin
-from lightblue_ai.utils import PendingMessage
 
 
 class GlobTool(LightBlueTool):
@@ -331,7 +330,6 @@ class ViewTool(LightBlueTool, MediaMixin):
 
     async def call(  # noqa: C901
         self,
-        ctx: RunContext[PendingMessage],
         file_path: Annotated[str, Field(description="Absolute path to the file to read")],
         line_offset: Annotated[
             int | None,
@@ -376,7 +374,7 @@ class ViewTool(LightBlueTool, MediaMixin):
                     with path.open("rb") as f:
                         content = f.read()
                 data = BinaryContent(data=content, media_type=media_type)
-                return ctx.deps.use_tool_return(data)
+                return data
 
             # Read text file
             with path.open("r", encoding="utf-8", errors="replace") as f:

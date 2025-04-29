@@ -5,7 +5,6 @@ from typing import TypeVar
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
-from inline_snapshot import snapshot
 from pydantic_ai import BinaryContent
 
 from lightblue_ai.tools.local.command import BashTool
@@ -18,7 +17,6 @@ from lightblue_ai.tools.local.files import (
     ViewTool,
     _get_file_info,
 )
-from lightblue_ai.utils import PendingMessage
 
 
 class TestGlobTool:
@@ -213,8 +211,7 @@ class TestViewTool:
         test_file.write_text(mock_file_content)
 
         # Test the call function with a real file
-        ctx = DummyCtx(deps=PendingMessage(multi_turn=False, tool_return_data=True))
-        result = await view_tool.call(ctx=ctx, file_path=str(test_file))
+        result = await view_tool.call(file_path=str(test_file))
 
         # Verify the result is the file content
         assert result == mock_file_content
@@ -227,34 +224,11 @@ class TestViewTool:
         test_file.write_bytes(mock_binary_content)
 
         # Test the call function with a real binary file
-        ctx = DummyCtx(deps=PendingMessage(multi_turn=False, tool_return_data=True))
-        result = await view_tool.call(ctx=ctx, file_path=str(test_file))
-
+        result = await view_tool.call(file_path=str(test_file))
         # Verify the result is a BinaryContent object
         assert isinstance(result, BinaryContent)
         assert result.data == mock_binary_content
         assert result.media_type == "image/png"
-
-        deps = PendingMessage(multi_turn=True, tool_return_data=True)
-        ctx = DummyCtx(deps=deps)
-        result = await view_tool.call(ctx=ctx, file_path=str(test_file))
-
-        # Verify the result is a str object and have pending message
-        assert isinstance(result, str)
-        assert result == snapshot("File content added to context, will provided in next user prompt")
-        pending_data = deps.messages[0]
-        assert pending_data.data == mock_binary_content
-        assert pending_data.media_type == "image/png"
-
-        deps = PendingMessage(multi_turn=False, tool_return_data=False)
-        ctx = DummyCtx(deps=deps)
-        result = await view_tool.call(ctx=ctx, file_path=str(test_file))
-
-        # Verify the result is a str object and have pending message
-        assert isinstance(result, str)
-        assert result == snapshot(
-            "Use `context_agent` tool to read binary files. Place the file in `attatchments` field of `context_agent` tool."
-        )
 
 
 class TestEditTool:
@@ -281,7 +255,9 @@ class TestEditTool:
 
             # Test the call function
             result = await edit_tool.call(
-                file_path=str(test_file), old_string="Line 3\n", new_string="Modified Line 3\n"
+                file_path=str(test_file),
+                old_string="Line 3\n",
+                new_string="Modified Line 3\n",
             )
 
             # Verify the result is a success message

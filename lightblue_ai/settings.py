@@ -10,7 +10,6 @@ class Settings(BaseSettings):
     default_model: str | None = None
     sub_agent_model: str | None = None
     reflection_agent_model: str | None = None
-    enable_multi_turn: bool = True
     enable_bash_tool: bool = True
     auto_resize_images: bool = False
     append_tools_to_prompt: bool = False

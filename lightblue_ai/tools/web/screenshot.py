@@ -2,12 +2,11 @@ from typing import Annotated
 
 import httpx
 from pydantic import Field
-from pydantic_ai import BinaryContent, RunContext
+from pydantic_ai import BinaryContent
 
 from lightblue_ai.settings import Settings
 from lightblue_ai.tools.base import LightBlueTool, Scope
 from lightblue_ai.tools.extensions import hookimpl
-from lightblue_ai.utils import PendingMessage
 
 URLBOX_URL = "https://api.urlbox.io/v1/render/sync"
 
@@ -77,14 +76,13 @@ class ScreenshotTool(LightBlueTool):
 
     async def call(
         self,
-        ctx: RunContext[PendingMessage],
         url: Annotated[str, Field(description="URL of the web page to take a screenshot of")],
-    ) -> BinaryContent | str:
+    ) -> BinaryContent:
         data = BinaryContent(
             data=await self.urlbox._get_screenshot(url),
             media_type="image/png",
         )
-        return ctx.deps.use_tool_return(data)
+        return data
 
 
 @hookimpl
