@@ -191,24 +191,14 @@ async def stream(
 
     console.print(Markdown(prompt))
     with Live("", console=console, vertical_overflow="visible", refresh_per_second=1) as live:
-        if agent.enable_multi_turn:
-            async for run in agent.iter_multiple(prompt, message_history=message_history, usage=usage):
-                async for event in agent.yield_response_event(run):
-                    # Log the raw event for debugging
-                    logger.debug(f"Event: {event}")
-                    # Update the display with the new event
-                    content = event_handler.update_from_event(event)
-                    # Use Markdown for rendering
-                    live.update(Markdown(content))
-        else:
-            async with agent.iter(prompt, message_history=message_history, usage=usage) as run:
-                async for event in agent.yield_response_event(run):
-                    # Log the raw event for debugging
-                    logger.debug(f"Event: {event}")
-                    # Update the display with the new event
-                    content = event_handler.update_from_event(event)
-                    # Use Markdown for rendering
-                    live.update(Markdown(content))
+        async with agent.iter(prompt, message_history=message_history, usage=usage) as run:
+            async for event in agent.yield_response_event(run):
+                # Log the raw event for debugging
+                logger.debug(f"Event: {event}")
+                # Update the display with the new event
+                content = event_handler.update_from_event(event)
+                # Use Markdown for rendering
+                live.update(Markdown(content))
 
         with all_messages_json.open("wb") as f:
             console.print(f"Saved current round to {all_messages_json.absolute().as_posix()}")

@@ -11,7 +11,6 @@ from lightblue_ai.tools.base import LightBlueTool, Scope
 from lightblue_ai.tools.extensions import hookimpl
 from lightblue_ai.tools.manager import LightBlueToolManager
 from lightblue_ai.tools.media_mixin import MediaMixin
-from lightblue_ai.utils import PendingMessage
 
 
 class DispatchAgentTool(LightBlueTool, MediaMixin):
@@ -51,7 +50,6 @@ Usage notes:
     ) -> str:
         model_name = self.settings.sub_agent_model or self.settings.default_model
         max_description_length = 1000 if "anthropic" in model_name else None
-        tool_return_data = "anthropic" in model_name
         if max_description_length:
             system_prompt = "\n".join([
                 system_prompt,
@@ -85,7 +83,6 @@ Usage notes:
         return (
             await self.agent.run(
                 [*attatchment_data, objective],
-                deps=PendingMessage(multi_turn=False, tool_return_data=tool_return_data),
             )
         ).output
 

@@ -5,12 +5,11 @@ from typing import Annotated
 import httpx
 from playwright.async_api import async_playwright
 from pydantic import Field
-from pydantic_ai import BinaryContent, RunContext
+from pydantic_ai import BinaryContent
 
 from lightblue_ai.tools.base import LightBlueTool, Scope
 from lightblue_ai.tools.extensions import hookimpl
 from lightblue_ai.tools.media_mixin import MediaMixin
-from lightblue_ai.utils import PendingMessage
 
 
 class WebFileViewTool(LightBlueTool, MediaMixin):
@@ -26,7 +25,6 @@ Use `read_web` related tools if you need to read web pages. Only use this tool i
 
     async def call(
         self,
-        ctx: RunContext[PendingMessage],
         url: Annotated[str, Field(description="URL of the web resource to view")],
     ) -> str | dict | BinaryContent:
         try:
@@ -38,7 +36,7 @@ Use `read_web` related tools if you need to read web pages. Only use this tool i
                     data=self._resized_image(response.content),
                     media_type=content_type,
                 )
-                return ctx.deps.use_tool_return(data)
+                return data
             else:
                 return response.text
         except httpx.HTTPError as e:
@@ -66,7 +64,6 @@ class WebPageViewTool(LightBlueTool, MediaMixin):
 
     async def call(
         self,
-        ctx: RunContext[PendingMessage],
         path: Annotated[
             str,
             Field(
@@ -105,7 +102,7 @@ class WebPageViewTool(LightBlueTool, MediaMixin):
                     data=screenshot_bytes,
                     media_type="image/png",
                 )
-                return ctx.deps.use_tool_return(data)
+                return data
             finally:
                 await browser.close()
 
