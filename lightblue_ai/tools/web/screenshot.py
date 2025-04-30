@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Any
 
 import httpx
 from pydantic import Field
@@ -77,12 +77,20 @@ class ScreenshotTool(LightBlueTool):
     async def call(
         self,
         url: Annotated[str, Field(description="URL of the web page to take a screenshot of")],
-    ) -> BinaryContent:
-        data = BinaryContent(
-            data=await self.urlbox._get_screenshot(url),
-            media_type="image/png",
-        )
-        return data
+    ) -> BinaryContent | dict[str, Any]:
+        try:
+            data = BinaryContent(
+                data=await self.urlbox._get_screenshot(url),
+                media_type="image/png",
+            )
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e),
+                "message": f"Failed to take screenshot of {url}",
+            }
+        else:
+            return data
 
 
 @hookimpl
