@@ -34,7 +34,7 @@ class HTTPRequestTool(LightBlueTool):
         try:
             response.raise_for_status()
         except httpx.HTTPStatusError as e:
-            return {"error": str(e), "status_code": e.response.status_code}
+            return {"error": str(e), "status_code": e.response.status_code, "response": e.response.text}
         else:
             return response.json()
 
