@@ -1,6 +1,6 @@
 import asyncio
 from pathlib import Path
-from typing import Annotated, Any
+from typing import Annotated
 
 import httpx
 from pydantic import Field
@@ -86,20 +86,6 @@ class SaveWebTool(LightBlueTool):
                 "content_type": content_type,
                 "message": f"File successfully saved to {save_path_obj.as_posix()}",
             }
-
-
-class HTTPRequestTool(LightBlueTool):
-    def __init__(self):
-        self.name = "http_request_tool"
-        self.scopes = [Scope.web]
-        self.description = ()
-        self.client = httpx.AsyncClient()
-
-    async def call(
-        self,
-        url: Annotated[str, Field(description="")],
-    ) -> dict[str, Any]:
-        pass
 
 
 @hookimpl
