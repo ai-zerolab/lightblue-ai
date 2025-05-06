@@ -26,7 +26,7 @@ class HTTPRequestTool(LightBlueTool):
                 description="Authorization header to use for the request. If not provided, the tool will not include an authorization header. e.g. Bearer <token>"
             ),
         ] = None,
-    ) -> dict[str, Any]:
+    ) -> dict[str, Any] | str:
         headers = headers or {}
         if authrization:
             headers["Authorization"] = authrization
@@ -36,7 +36,7 @@ class HTTPRequestTool(LightBlueTool):
         except httpx.HTTPStatusError as e:
             return {"error": str(e), "status_code": e.response.status_code, "response": e.response.text}
         else:
-            return response.json()
+            return response.json() if response.content_type == "application/json" else response.text
 
 
 @hookimpl
