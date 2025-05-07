@@ -17,7 +17,7 @@ class WebFileViewTool(LightBlueTool, MediaMixin):
         self.name = "view_web_file"
         self.scopes = [Scope.web]
         self.description = """Reads a file or image from the web.
-For image files, the tool will display the image for you. If you cannot read image via tool, just call the tool and it will display in next user prompt, you can wait for the next prompt.
+For image files, the tool will display the image for you.
 Use this tool to read files and images from the web.
 Use `read_web` related tools if you need to read web pages. Only use this tool if you need to view it directly.
 """

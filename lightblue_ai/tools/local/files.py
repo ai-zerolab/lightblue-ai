@@ -318,13 +318,13 @@ class ViewTool(LightBlueTool, MediaMixin):
         self.name = "View"
         self.scopes = [Scope.read]
         self.description = (
-            "Reads a file from the local filesystem. "
+            "Reads a file from the local filesystem. Support for text, pdf, image, audio and video files."
             "The file_path parameter must be an absolute path, not a relative path. "
             "By default, it reads up to 2000 lines starting from the beginning of the file. "
             "You can optionally specify a line offset and limit (especially handy for long files), "
             "but it's recommended to read the whole file by not providing these parameters. "
             "Any lines longer than 2000 characters will be truncated. "
-            "For image files, the tool will display the image for you. If you cannot read image via tool, just call the tool and it will display in next user prompt, you can wait for the next prompt."
+            "For image audio and video files, the tool will display the file for you. "
             "For very large PDF files, you need to use the PDF2Images tool to convert them into multiple images and read the images to understand the PDF."
         )
 
@@ -407,7 +407,7 @@ class EditTool(LightBlueTool):
     def __init__(self):
         self.name = "Edit"
         self.scopes = [Scope.write]
-        self.description = """This is a tool for editing files. For moving or renaming files, you should generally use the Bash tool with the 'mv' command instead. For larger edits, use the Write tool to overwrite files. For Jupyter notebooks (.ipynb files), use the NotebookEditCell instead.
+        self.description = """This is a tool for editing files. For moving or renaming files, you should generally use the Bash tool with the 'mv' command instead. For larger edits, use the Write tool to overwrite files.
 
 Before using this tool:
 
