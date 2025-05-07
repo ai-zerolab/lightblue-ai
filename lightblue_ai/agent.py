@@ -57,7 +57,6 @@ class LightBlueAgent[OutputDataT]:
         else:
             # OpenAI style API
             max_description_length = max_description_length or 1000
-        max_description_length = None
         logger.info(f"Using model: {model_name}, description length: {max_description_length}")
 
         self.tool_manager = LightBlueToolManager(max_description_length=max_description_length, strict=strict)
