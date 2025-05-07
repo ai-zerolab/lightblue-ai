@@ -14,7 +14,8 @@ class Anything2Markdown(LightBlueTool):
         self.name = "convert_to_markdown"
         self.md = MarkItDown(enable_plugins=True)
         self.scopes = [Scope.read]
-        self.description = """MarkItDown is a lightweight Python utility for converting various files to Markdown.
+        self.description = """Use this tool when the file cannot be read with View tool.
+MarkItDown is a lightweight Python utility for converting various files to Markdown.
 focus on preserving important document structure and content as Markdown (including: headings, lists, tables, links, etc.) While the output is often reasonably presentable and human-friendly, it is meant to be consumed by text analysis tools
 At present, MarkItDown supports:
 - PDF
@@ -28,9 +29,6 @@ At present, MarkItDown supports:
 - ZIP files (iterates over contents)
 - Youtube URLs
 - EPubs
-- ... and more!
-
-Use this tool when the file cannot be read with View tool
 """
 
     async def call(
@@ -45,7 +43,10 @@ Use this tool when the file cannot be read with View tool
             ),
         ],
     ) -> str:
-        return (self.md.convert(source)).text_content
+        try:
+            return (self.md.convert(source)).text_content
+        except Exception as e:
+            return f"Error: {e}"
 
 
 @hookimpl

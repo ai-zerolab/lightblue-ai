@@ -182,9 +182,9 @@ GlobTool, - Fast file pattern matching tool that works with any codebase size
 
 LS, Lists files and directories in a given path. The path parameter must be an absolute path, not a relative path. You should generally prefer the Glob and Grep tools, if you know which directories to search, {'additionalProperties': False, 'properties': {'path': {'description': 'Directory path', 'type': 'string'}, 'recursive': {'default': False, 'description': 'Whether to list recursively', 'type': 'boolean'}, 'max_depth': {'default': -1, 'description': 'Maximum recursion depth', 'type': 'integer'}, 'include_hidden': {'default': False, 'description': 'Whether to include hidden files', 'type': 'boolean'}, 'ignore_patterns': {'anyOf': [{'items': {'type': 'string'}, 'type': 'array'}, {'type': 'null'}], 'default': ['node_modules', 'dist', 'build', 'public', 'static', '.next', '.git', '.vscode', '.idea', '.DS_Store', '.env', '.venv'], 'description': "Glob patterns to ignore (e.g. ['node_modules', '*.tmp'])"}}, 'required': ['path'], 'type': 'object'}
 
-View, Reads a file from the local filesystem. The file_path parameter must be an absolute path, not a relative path. By default, it reads up to 2000 lines starting from the beginning of the file. You can optionally specify a line offset and limit (especially handy for long files), but it's recommended to read the whole file by not providing these parameters. Any lines longer than 2000 characters will be truncated. For image files, the tool will display the image for you. If you cannot read image via tool, just call the tool and it will display in next user prompt, you can wait for the next prompt.For very large PDF files, you need to use the PDF2Images tool to convert them into multiple images and read the images to understand the PDF., {'additionalProperties': False, 'properties': {'file_path': {'description': 'Absolute path to the file to read', 'type': 'string'}, 'line_offset': {'anyOf': [{'type': 'integer'}, {'type': 'null'}], 'default': None, 'description': 'Line number to start reading from (0-indexed)'}, 'line_limit': {'default': 2000, 'description': 'Maximum number of lines to read', 'type': 'integer'}}, 'required': ['file_path'], 'type': 'object'}
+View, Reads a file from the local filesystem. Support for text, pdf, image, audio and video files.The file_path parameter must be an absolute path, not a relative path. By default, it reads up to 2000 lines starting from the beginning of the file. You can optionally specify a line offset and limit (especially handy for long files), but it's recommended to read the whole file by not providing these parameters. Any lines longer than 2000 characters will be truncated. For image audio and video files, the tool will display the file for you. For very large PDF files, you need to use the PDF2Images tool to convert them into multiple images and read the images to understand the PDF., {'additionalProperties': False, 'properties': {'file_path': {'description': 'Absolute path to the file to read', 'type': 'string'}, 'line_offset': {'anyOf': [{'type': 'integer'}, {'type': 'null'}], 'default': None, 'description': 'Line number to start reading from (0-indexed)'}, 'line_limit': {'default': 2000, 'description': 'Maximum number of lines to read', 'type': 'integer'}}, 'required': ['file_path'], 'type': 'object'}
 
-Edit, This is a tool for editing files. For moving or renaming files, you should generally use the Bash tool with the 'mv' command instead. For larger edits, use the Write tool to overwrite files. For Jupyter notebooks (.ipynb files), use the NotebookEditCell instead.
+Edit, This is a tool for editing files. For moving or renaming files, you should generally use the Bash tool with the 'mv' command instead. For larger edits, use the Write tool to overwrite files.
 
 Before using this tool:
 
@@ -243,7 +243,8 @@ Before using this tool:
     - Use the LS tool to verify the parent directory exists and is the correct location.
 , {'additionalProperties': False, 'properties': {'file_path': {'description': 'Absolute path to the file to write', 'type': 'string'}, 'content': {'description': 'Content to write to the file', 'type': 'string'}}, 'required': ['file_path', 'content'], 'type': 'object'}
 
-convert_to_markdown, MarkItDown is a lightweight Python utility for converting various files to Markdown.
+convert_to_markdown, Use this tool when the file cannot be read with View tool.
+MarkItDown is a lightweight Python utility for converting various files to Markdown.
 focus on preserving important document structure and content as Markdown (including: headings, lists, tables, links, etc.) While the output is often reasonably presentable and human-friendly, it is meant to be consumed by text analysis tools
 At present, MarkItDown supports:
 - PDF
@@ -257,9 +258,6 @@ At present, MarkItDown supports:
 - ZIP files (iterates over contents)
 - Youtube URLs
 - EPubs
-- ... and more!
-
-Use this tool when the file cannot be read with View tool
 , {'additionalProperties': False, 'properties': {'source': {'description': 'source with following schema:local file: `file:///path/to/file` or just path of the file: `/path/to/file`url: `https://example.com/file.pdf` or `http://example.com/file.pdf`data: `data;base64,<base64-encoded-data>`', 'type': 'string'}}, 'required': ['source'], 'type': 'object'}
 
 convert_pdf_to_images, Converts a PDF file to multiple PNG image files. The file_path parameter must be an absolute path to a PDF file. The output_path parameter is optional and will default to the same directory as the input file if not provided.For PDF file, try convert_to_markdown tool first. For using this tool, you should to use View tool to view the images., {'additionalProperties': False, 'properties': {'file_path': {'description': 'Absolute path to the PDF file to convert', 'type': 'string'}, 'output_path': {'anyOf': [{'type': 'string'}, {'type': 'null'}], 'description': 'Optional. Absolute path to the directory to save the images. If not provided, the images will be saved in the same directory as the PDF file.'}}, 'required': ['file_path', 'output_path'], 'type': 'object'}
@@ -267,7 +265,7 @@ convert_pdf_to_images, Converts a PDF file to multiple PNG image files. The file
 convert_pdf_to_markdown, Converts a PDF file to markdown format via pymupdf4llm. This is the best tool to use for PDF file. You should always use this tool first. This tool will also convert the PDF to images and save them in the `image_path` directory. You can View the images using the `view` tool. , {'additionalProperties': False, 'properties': {'file_path': {'description': 'Absolute path to the PDF file to convert', 'type': 'string'}, 'image_path': {'anyOf': [{'type': 'string'}, {'type': 'null'}], 'description': 'Optional. Absolute path to the directory to save the images. If not provided, the images will be saved in the same directory as the PDF file.'}}, 'required': ['file_path'], 'type': 'object'}
 
 view_web_file, Reads a file or image from the web.
-For image files, the tool will display the image for you. If you cannot read image via tool, just call the tool and it will display in next user prompt, you can wait for the next prompt.
+For image files, the tool will display the image for you.
 Use this tool to read files and images from the web.
 Use `read_web` related tools if you need to read web pages. Only use this tool if you need to view it directly.
 , {'additionalProperties': False, 'properties': {'url': {'description': 'URL of the web resource to view', 'type': 'string'}}, 'required': ['url'], 'type': 'object'}
