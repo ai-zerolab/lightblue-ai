@@ -36,7 +36,7 @@ class HTTPRequestTool(LightBlueTool):
         except httpx.HTTPStatusError as e:
             return {"error": str(e), "status_code": e.response.status_code, "response": e.response.text}
         else:
-            return response.json() if response.content_type == "application/json" else response.text
+            return response.json() if response.headers["Content-Type"] == "application/json" else response.text
 
 
 @hookimpl
