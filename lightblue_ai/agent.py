@@ -51,12 +51,14 @@ class LightBlueAgent[OutputDataT]:
         model_name = model.model_name if isinstance(model, Model) else model
         system_prompt = system_prompt or get_system_prompt()
         if (
-            ("anthropic" in model_name) or (("gemini-2.5" in model_name) and "openrouter" not in model_name)
-        ) or isinstance(model, FunctionModel):
-            max_description_length = None
-        else:
-            # OpenAI style API
+            "openrouter" in model_name
+            or "openai" in model_name
+            or ("anthropic" not in model_name and "gemini-2.5" not in model_name)
+        ) and not isinstance(model, FunctionModel):
+            # OpenAI Compatible OR not anthropic/gemini-2.5
             max_description_length = max_description_length or 1000
+        else:
+            max_description_length = max_description_length
         logger.info(f"Using model: {model_name}, description length: {max_description_length}")
 
         self.tool_manager = LightBlueToolManager(max_description_length=max_description_length, strict=strict)
