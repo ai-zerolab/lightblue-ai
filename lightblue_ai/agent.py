@@ -50,11 +50,14 @@ class LightBlueAgent[OutputDataT]:
             raise ValueError("model or ENV `DEFAULT_MODEL` must be set")
         model_name = model.model_name if isinstance(model, Model) else model
         system_prompt = system_prompt or get_system_prompt()
-        if ("anthropic" in model_name and "openrouter" not in model_name) or isinstance(model, FunctionModel):
+        if (
+            ("anthropic" in model_name) or (("gemini-2.5" in model_name) and "openrouter" not in model_name)
+        ) or isinstance(model, FunctionModel):
             max_description_length = None
         else:
             # OpenAI style API
             max_description_length = max_description_length or 1000
+        max_description_length = None
         logger.info(f"Using model: {model_name}, description length: {max_description_length}")
 
         self.tool_manager = LightBlueToolManager(max_description_length=max_description_length, strict=strict)
