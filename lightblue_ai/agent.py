@@ -1,6 +1,6 @@
 from collections.abc import AsyncIterator, Sequence
 from contextlib import asynccontextmanager
-from typing import TypeVar
+from typing import Generic, TypeVar
 
 from pydantic_ai.agent import Agent, AgentRun, AgentRunResult
 from pydantic_ai.mcp import MCPServer
@@ -27,7 +27,7 @@ from lightblue_ai.tools.manager import LightBlueToolManager
 OutputDataT = TypeVar("T")
 
 
-class LightBlueAgent[OutputDataT]:
+class LightBlueAgent(Generic[OutputDataT]):
     def __init__(
         self,
         model: str | Model | None = None,
