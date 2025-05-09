@@ -1,7 +1,7 @@
 import asyncio
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TypeVar
+from typing import Generic, TypeVar
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
@@ -194,7 +194,7 @@ T = TypeVar("T")
 
 
 @dataclass
-class DummyCtx[T]:
+class DummyCtx(Generic[T]):
     deps: T
 
 
