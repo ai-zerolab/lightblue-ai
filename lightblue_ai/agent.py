@@ -96,7 +96,7 @@ class LightBlueAgent(Generic[OutputDataT]):
         async with self.agent.run_mcp_servers():
             result = await self.agent.run(user_prompt, message_history=message_history)
             if usage:
-                usage.incr(result.usage(), requests=1)
+                usage.incr(result.usage())
         return result
 
     @asynccontextmanager
@@ -116,7 +116,7 @@ class LightBlueAgent(Generic[OutputDataT]):
         ):
             yield run
         if usage:
-            usage.incr(run.usage(), requests=1)
+            usage.incr(run.usage())
 
     async def yield_response_event(self, run: AgentRun) -> AsyncIterator[HandleResponseEvent | AgentStreamEvent]:
         """
