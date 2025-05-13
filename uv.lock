@@ -1058,6 +1058,7 @@ dependencies = [
     { name = "pydantic-ai" },
     { name = "pydantic-settings" },
     { name = "pymupdf4llm" },
+    { name = "pymupdfpro" },
     { name = "python-dotenv" },
     { name = "rich" },
     { name = "tavily-python" },
@@ -1096,6 +1097,7 @@ requires-dist = [
     { name = "pydantic-ai", specifier = ">=0.2.0" },
     { name = "pydantic-settings", specifier = ">=2.8.1" },
     { name = "pymupdf4llm", specifier = ">=0.0.21" },
+    { name = "pymupdfpro", specifier = ">=1.25.5" },
     { name = "python-dotenv", specifier = ">=1.1.0" },
     { name = "rich", specifier = ">=14.0.0" },
     { name = "tavily-python", specifier = ">=0.5.3" },
@@ -2154,6 +2156,21 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/58/ed/a939586b562bd1300fd9586ae5e8875a53ad70e6032d94a003642b78015e/pymupdf4llm-0.0.21.tar.gz", hash = "sha256:77b49d5f8efd48ca3b7322f620afa4bcbb2a01d17079baeeb7ad04add434ce0b", size = 27507 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f9/51/85dce1267a4569db08aff94b72153297f13880ddfb77f9d3fef67ac86ba7/pymupdf4llm-0.0.21-py3-none-any.whl", hash = "sha256:cf78fc0957ed13f56cb531b3bc0546cb5ae543541e54ce7ec4194165549cfe2e", size = 28130 },
+]
+
+[[package]]
+name = "pymupdfpro"
+version = "1.25.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pymupdf" },
+    { name = "requests" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b2/3c/5382b79f34553ba86d5e804e4e4d909b3655680a36c7b5037a23a27dfaa5/pymupdfpro-1.25.5-cp39-abi3-macosx_10_9_x86_64.whl", hash = "sha256:46d4cdd2c05ad70be91238c7bfd0bbe9708ae4acf713a492c56fb537d4e87168", size = 7244540 },
+    { url = "https://files.pythonhosted.org/packages/70/36/4cea9ff7ff847f3e8244c8c4f78a18dae6319dfab21e75acdead9334e7bf/pymupdfpro-1.25.5-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:2c4d286b4a0aa0c5d482363fb5e5a42fa8bac3b0949d268662a0b011436ff1de", size = 7088255 },
+    { url = "https://files.pythonhosted.org/packages/cd/30/08a7a00e37c7b46e59eb4032d9dac19af3f0fde6986a0ba6e084162a5c81/pymupdfpro-1.25.5-cp39-abi3-manylinux2014_x86_64.whl", hash = "sha256:5d1e39213d2e9ffcb568685cb520f42d9c6674c7d983322320a97c8aebf4e552", size = 8157954 },
+    { url = "https://files.pythonhosted.org/packages/ad/c8/7c8eed99b0f88e365d027b3e72fc4843a97b5c58e3799eace64bfa6b40a3/pymupdfpro-1.25.5-cp39-abi3-win_amd64.whl", hash = "sha256:f8ec50d3f9174fa82ec6d226cd1d7042d92c40391816b066e6093e9f43b4a929", size = 6626050 },
 ]
 
 [[package]]
