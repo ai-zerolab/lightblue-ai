@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from typing import Annotated, Any
 
@@ -82,6 +83,11 @@ class Mupdf4LLMTool(LightBlueTool):
             "This tool will also convert the PDF to images and save them in the `image_path` directory. "
             "You can View the images using the `view` tool. "
         )
+        if pymupdf_pro_password := os.getenv("PYMUPDF_PRO_PASSWORD"):
+            import pymupdf.pro
+
+            pymupdf.pro.unlock(pymupdf_pro_password)
+            self.description += "\n **This tool now supports DOC/DOCX, XLS/XLSX, PPT/PPTX, HWP/HWPX as PRO version.**"
 
     async def call(
         self,

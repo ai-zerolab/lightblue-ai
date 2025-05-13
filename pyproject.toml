@@ -32,6 +32,7 @@ dependencies = [
     "pydantic-ai>=0.2.0",
     "pydantic-settings>=2.8.1",
     "pymupdf4llm>=0.0.21",
+    "pymupdfpro>=1.25.5",
     "python-dotenv>=1.1.0",
     "rich>=14.0.0",
     "tavily-python>=0.5.3",
