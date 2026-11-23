@@ -91,7 +91,7 @@ class LightBlueToolManager:
         for tool in tools:
             tool.strict = self.strict
 
-    def get_lightblue_tool(self, tool_name: str) -> None | LightBlueTool:
+    def get_lightblue_tool(self, tool_name: str) -> LightBlueTool | None:
         for tool in self._registed_instance:
             if tool.name == tool_name:
                 return tool
